@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Valid signature verification -- key=1, pubkey=G",
+    "message_hash_hex": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
+    "public_key_x": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+    "public_key_y": "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
+    "signature_r": "58db657bcd631038bea07b4941172f0167aca98f12b55e3176bd1c35435d6501",
+    "signature_s": "3a78e73d8ff8ab554e13c10f6390d81a882f91945d6275493882676170b53a57",
+    "expected_valid": true,
+    "note": "Private key = 1, pubkey = G, msg = sha256('sample')"
+  },
+  {
+    "description": "Invalid signature -- wrong public key (2G instead of G)",
+    "message_hash_hex": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
+    "public_key_x": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+    "public_key_y": "1ae168fea63dc339a3c58419466ceae1032688d15f9c819b755a7e8fc9b3ba4c",
+    "signature_r": "58db657bcd631038bea07b4941172f0167aca98f12b55e3176bd1c35435d6501",
+    "signature_s": "3a78e73d8ff8ab554e13c10f6390d81a882f91945d6275493882676170b53a57",
+    "expected_valid": false,
+    "note": "2G used instead of G -- signature was made with key=1"
+  },
+  {
+    "description": "Invalid signature -- tampered r (last nibble changed)",
+    "message_hash_hex": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
+    "public_key_x": "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+    "public_key_y": "483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
+    "signature_r": "58db657bcd631038bea07b4941172f0167aca98f12b55e3176bd1c35435d6502",
+    "signature_s": "3a78e73d8ff8ab554e13c10f6390d81a882f91945d6275493882676170b53a57",
+    "expected_valid": false,
+    "note": "Last nibble of r changed from 1 to 2"
+  }
+]

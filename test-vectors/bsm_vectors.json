@@ -1,0 +1,17 @@
+{
+  "vectors": [
+    {
+      "description": "TS SDK BSM test: sign with WIF key",
+      "wif": "L211enC224G1kV8pyyq7bjVd9SxZebnRYEzzM3i7ZHCc1c5E7dQu",
+      "message": "hello world",
+      "signature_base64": "H4T8Asr0WkC6wYfBESR6pCAfECtdsPM4fwiSQ2qndFi8dVtv/mrOFaySx9xQE7j24ugoJ4iGnsRwAC8QwaoHOXk="
+    },
+    {
+      "description": "TS SDK BSM test: verify with public key",
+      "message": "Texas",
+      "public_key_hex": "03d4d1a6c5d8c03b0e671bc1891b69afaecb40c0686188fe9019f93581b43e8334",
+      "signature_base64": "IAV89EkfHSzAIA8cEWbbKHUYzJqcShkpWaXGJ5+mf4+YIlf3XNlr0bj9X60sNe1A7+x9qyk+zmXropMDY4370n8=",
+      "recovery_factor": 1
+    }
+  ]
+}

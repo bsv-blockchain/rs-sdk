@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Transaction.toAtomicBEEF",
+    "average": 0.6432065279518573,
+    "min": 0.6301956383647804,
+    "max": 0.656161862295081,
+    "stddev": 0.008948434503890695,
+    "samples": 5,
+    "sampleIterations": [
+      305,
+      309,
+      311,
+      318,
+      314
+    ]
+  },
+  {
+    "name": "Transaction.fromAtomicBEEF",
+    "average": 1.2814264127603348,
+    "min": 1.2263582499999979,
+    "max": 1.3653985102040722,
+    "stddev": 0.05795358432865858,
+    "samples": 5,
+    "sampleIterations": [
+      151,
+      164,
+      163,
+      161,
+      147
+    ]
+  }
+]

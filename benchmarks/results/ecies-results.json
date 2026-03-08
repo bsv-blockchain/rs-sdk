@@ -1,0 +1,194 @@
+[
+  {
+    "name": "ECIES Electrum encrypt 32B",
+    "average": 0.018524251165155044,
+    "min": 0.0178397475173935,
+    "max": 0.02141378572448247,
+    "stddev": 0.0012945726005556804,
+    "samples": 6,
+    "sampleIterations": [
+      14010,
+      16594,
+      16775,
+      16668,
+      16733,
+      16817
+    ]
+  },
+  {
+    "name": "ECIES Electrum encrypt 1KB",
+    "average": 0.07309948073178488,
+    "min": 0.07252366134880497,
+    "max": 0.07353159191176536,
+    "stddev": 0.00033566654118982406,
+    "samples": 6,
+    "sampleIterations": [
+      4087,
+      4080,
+      4118,
+      4137,
+      4104,
+      4102
+    ]
+  },
+  {
+    "name": "ECIES Electrum encrypt 64KB",
+    "average": 4.514512525009554,
+    "min": 4.46139949999997,
+    "max": 4.661135276923058,
+    "stddev": 0.06664300181727605,
+    "samples": 6,
+    "sampleIterations": [
+      67,
+      65,
+      67,
+      68,
+      67,
+      67
+    ]
+  },
+  {
+    "name": "ECIES Electrum decrypt 32B",
+    "average": 0.03356080596440491,
+    "min": 0.03304953679224227,
+    "max": 0.03511154815681769,
+    "stddev": 0.0007111022469191543,
+    "samples": 6,
+    "sampleIterations": [
+      8545,
+      8951,
+      9057,
+      8989,
+      9041,
+      9078
+    ]
+  },
+  {
+    "name": "ECIES Electrum decrypt 1KB",
+    "average": 0.0869195061889867,
+    "min": 0.08675398814686565,
+    "max": 0.08723133517441013,
+    "stddev": 0.00019199499482562167,
+    "samples": 6,
+    "sampleIterations": [
+      3458,
+      3453,
+      3458,
+      3440,
+      3444,
+      3459
+    ]
+  },
+  {
+    "name": "ECIES Electrum decrypt 64KB",
+    "average": 4.236840281408207,
+    "min": 4.183265000000044,
+    "max": 4.414299029411669,
+    "stddev": 0.08117662204289441,
+    "samples": 6,
+    "sampleIterations": [
+      71,
+      68,
+      72,
+      72,
+      72,
+      72
+    ]
+  },
+  {
+    "name": "ECIES Bitcore encrypt 32B",
+    "average": 0.01899766204395543,
+    "min": 0.018878125723630484,
+    "max": 0.019195250175958956,
+    "stddev": 0.00010555935720035332,
+    "samples": 6,
+    "sampleIterations": [
+      15629,
+      15748,
+      15805,
+      15876,
+      15804,
+      15892
+    ]
+  },
+  {
+    "name": "ECIES Bitcore encrypt 1KB",
+    "average": 0.08791518168126704,
+    "min": 0.08758759836542442,
+    "max": 0.08816068204524681,
+    "stddev": 0.0001759022366008441,
+    "samples": 6,
+    "sampleIterations": [
+      3415,
+      3414,
+      3403,
+      3426,
+      3409,
+      3411
+    ]
+  },
+  {
+    "name": "ECIES Bitcore encrypt 64KB",
+    "average": 5.42651771899351,
+    "min": 5.402124964285771,
+    "max": 5.4577855818181975,
+    "stddev": 0.01839457163239297,
+    "samples": 6,
+    "sampleIterations": [
+      56,
+      56,
+      56,
+      56,
+      56,
+      55
+    ]
+  },
+  {
+    "name": "ECIES Bitcore decrypt 32B",
+    "average": 0.09297005786887204,
+    "min": 0.09262337480707372,
+    "max": 0.09391345352113929,
+    "stddev": 0.0004469015591118018,
+    "samples": 6,
+    "sampleIterations": [
+      3195,
+      3237,
+      3239,
+      3230,
+      3225,
+      3238
+    ]
+  },
+  {
+    "name": "ECIES Bitcore decrypt 1KB",
+    "average": 0.15928856418678047,
+    "min": 0.1571869984284967,
+    "max": 0.16671149055555562,
+    "stddev": 0.0033370522551876645,
+    "samples": 6,
+    "sampleIterations": [
+      1896,
+      1898,
+      1909,
+      1901,
+      1903,
+      1800
+    ]
+  },
+  {
+    "name": "ECIES Bitcore decrypt 64KB",
+    "average": 5.048668547222122,
+    "min": 5.022048616666567,
+    "max": 5.074702150000061,
+    "stddev": 0.020194836896671186,
+    "samples": 6,
+    "sampleIterations": [
+      60,
+      60,
+      60,
+      60,
+      60,
+      60
+    ]
+  }
+]

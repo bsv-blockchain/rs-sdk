@@ -1,0 +1,23 @@
+[
+  {
+    "entropy": "0000000000000000000000000000000000000000000000000000000000000000",
+    "nonce": "0000000000000000000000000000000000000000000000000000000000000000",
+    "expected_first_generate": "601cf54e09f7b9149eee6624bfba7d12daae70b5f2d8c57b405f96d1aa92dc47",
+    "expected_second_generate": "5b01f41b19fac4275d50e29a795c8d4be1eba6c3ac4c9e56ee7c168e3de228cd",
+    "description": "All-zero entropy and nonce"
+  },
+  {
+    "entropy": "abababababababababababababababababababababababababababababababab",
+    "nonce": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+    "expected_first_generate": "0dc31f9b1cd65562b8b17159d89f1360f6f909ec19b26903696db5bcab064eb2",
+    "expected_second_generate": "a5b79b70c33618e1846623c26ff2bcafc9d511250bb796604f2b608c415bac45",
+    "description": "Repeated 0xAB entropy, 0xCD nonce"
+  },
+  {
+    "entropy": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "nonce": "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+    "expected_first_generate": "acb4c0527346343f45266a99a5ea86e9493b69635f509ed6871d4c871f93613b",
+    "expected_second_generate": "605527fd6e0367631059fbc871d16d1c1944a4faa9a40c68ed4e301ac351b750",
+    "description": "Sequential byte entropy and nonce"
+  }
+]

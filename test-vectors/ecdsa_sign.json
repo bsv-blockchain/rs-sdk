@@ -1,0 +1,20 @@
+[
+  {
+    "description": "private_key=1, msg_hash=sha256('sample'), force_low_s=false",
+    "private_key_hex": "1",
+    "message_hash_hex": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
+    "expected_r": "58db657bcd631038bea07b4941172f0167aca98f12b55e3176bd1c35435d6501",
+    "expected_s": "3a78e73d8ff8ab554e13c10f6390d81a882f91945d6275493882676170b53a57",
+    "force_low_s": false,
+    "note": "Deterministic RFC 6979 signature with key=1"
+  },
+  {
+    "description": "Known private key, force_low_s=true",
+    "private_key_hex": "ebb2c082fd7727890a28ac82f6bdf97bad8de9f5d7c9028692de1a255cad3e0f",
+    "message_hash_hex": "4b688df40bcedbe641ddb16ff0a1842d9c67ea1c3bf63f3e0471baa664531d1a",
+    "expected_r": "e3650c6a94419ce0db9d9e209ca5bac2f9a888f376bd7f05a142dd87f1fd90f6",
+    "expected_s": "252e6c025089ed9b784daed95ce09b1dfdb46d454e6fc1e1bd7ea007513f5c9a",
+    "force_low_s": true,
+    "note": "Sign with force_low_s"
+  }
+]

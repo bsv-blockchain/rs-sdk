@@ -1,0 +1,54 @@
+[
+  {
+    "name": "deep chain verify",
+    "average": 176.08550000000002,
+    "min": 174.51912500000003,
+    "max": 177.284042,
+    "stddev": 1.158351512894932,
+    "samples": 3,
+    "sampleIterations": [
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "wide transaction verify",
+    "average": 183.48659733333326,
+    "min": 181.9889169999999,
+    "max": 184.52949999999998,
+    "stddev": 1.0858967230040528,
+    "samples": 3,
+    "sampleIterations": [
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "large tx verify",
+    "average": 91.36502800000005,
+    "min": 91.18289599999991,
+    "max": 91.70770850000008,
+    "stddev": 0.2424718618427952,
+    "samples": 3,
+    "sampleIterations": [
+      2,
+      2,
+      2
+    ]
+  },
+  {
+    "name": "nested inputs verify",
+    "average": 51.80532399999987,
+    "min": 50.71999999999995,
+    "max": 53.91399999999991,
+    "stddev": 1.4912737255845199,
+    "samples": 3,
+    "sampleIterations": [
+      3,
+      3,
+      3
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "electrum": [
+    {
+      "description": "TS SDK: alice encrypts 'this is my test message' for bob",
+      "sender_private_key_hex": "77e06abc52bf065cb5164c5deca839d0276911991a2730be4d8d0a0307de7ceb",
+      "recipient_private_key_hex": "2b57c7c5e408ce927eef5e2efb49cfdadde77961d342daa72284bb3d6590862d",
+      "plaintext": "this is my test message",
+      "ciphertext_base64": "QklFMQM55QTWSSsILaluEejwOXlrBs1IVcEB4kkqbxDz4Fap53XHOt6L3tKmrXho6yj6phfoiMkBOhUldRPnEI4fSZXbvZJHgyAzxA6SoujduvJXv+A9ri3po9veilrmc8p6dwo="
+    },
+    {
+      "description": "TS SDK: bob encrypts 'this is my test message' for alice",
+      "sender_private_key_hex": "2b57c7c5e408ce927eef5e2efb49cfdadde77961d342daa72284bb3d6590862d",
+      "recipient_private_key_hex": "77e06abc52bf065cb5164c5deca839d0276911991a2730be4d8d0a0307de7ceb",
+      "plaintext": "this is my test message",
+      "ciphertext_base64": "QklFMQOGFyMXLo9Qv047K3BYJhmnJgt58EC8skYP/R2QU/U0yXXHOt6L3tKmrXho6yj6phfoiMkBOhUldRPnEI4fSZXbiaH4FsxKIOOvzolIFVAS0FplUmib2HnlAM1yP/iiPsU="
+    }
+  ],
+  "bitcore": [
+    {
+      "description": "Round-trip test with known keys (TS SDK uses PrivateKey(42) and PrivateKey(88))",
+      "sender_private_key_hex": "000000000000000000000000000000000000000000000000000000000000002a",
+      "recipient_private_key_hex": "0000000000000000000000000000000000000000000000000000000000000058",
+      "note": "Bitcore uses random IV, so ciphertext varies per encryption. Test via round-trip."
+    }
+  ]
+}

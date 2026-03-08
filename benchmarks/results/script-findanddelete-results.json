@@ -1,0 +1,97 @@
+[
+  {
+    "name": "findAndDelete mixed script (4000 chunks, 2% matches, 64B data)",
+    "average": 0.06835113037011568,
+    "min": 0.06790092701143216,
+    "max": 0.06961579417565736,
+    "stddev": 0.0004941643254743703,
+    "samples": 9,
+    "sampleIterations": [
+      8750,
+      8822,
+      8619,
+      8833,
+      8797,
+      8837,
+      8769,
+      8799,
+      8787
+    ]
+  },
+  {
+    "name": "findAndDelete mixed script (8000 chunks, 5% matches, 72B data)",
+    "average": 0.2536392303526202,
+    "min": 0.25333410932883155,
+    "max": 0.25400164748202453,
+    "stddev": 0.0002702644092908927,
+    "samples": 9,
+    "sampleIterations": [
+      2363,
+      2365,
+      2363,
+      2369,
+      2365,
+      2369,
+      2369,
+      2363,
+      2368
+    ]
+  },
+  {
+    "name": "findAndDelete mixed script (8000 chunks, 20% matches, 72B data)",
+    "average": 0.6981492607283628,
+    "min": 0.6927663840830597,
+    "max": 0.7197636582733713,
+    "stddev": 0.008024781975563259,
+    "samples": 9,
+    "sampleIterations": [
+      834,
+      857,
+      863,
+      866,
+      860,
+      864,
+      867,
+      866,
+      865
+    ]
+  },
+  {
+    "name": "findAndDelete mixed script (2000 chunks, 5% matches, 300B data)",
+    "average": 0.06709619536016988,
+    "min": 0.0664658891227111,
+    "max": 0.06893202389431148,
+    "stddev": 0.0008687387138925765,
+    "samples": 9,
+    "sampleIterations": [
+      9028,
+      8987,
+      9010,
+      9021,
+      8765,
+      9007,
+      8705,
+      8981,
+      8995
+    ]
+  },
+  {
+    "name": "findAndDelete mixed script (12000 chunks, 1% matches, 32B data)",
+    "average": 0.222853209211133,
+    "min": 0.22158082533233606,
+    "max": 0.2281825988593178,
+    "stddev": 0.0019154684776600585,
+    "samples": 9,
+    "sampleIterations": [
+      2630,
+      2701,
+      2696,
+      2704,
+      2705,
+      2697,
+      2695,
+      2702,
+      2708
+    ]
+  }
+]

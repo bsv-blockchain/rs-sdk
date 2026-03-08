@@ -1,0 +1,282 @@
+[
+  {
+    "label": "BigNumber mul large",
+    "tsName": "mul large numbers",
+    "rustKey": "bignumber/mul_large_numbers"
+  },
+  {
+    "label": "BigNumber add large",
+    "tsName": "add large numbers",
+    "rustKey": "bignumber/add_large_numbers"
+  },
+  {
+    "label": "BN toSm big",
+    "tsName": "toSm big",
+    "rustKey": "bn_serialization/to_sm_big"
+  },
+  {
+    "label": "BN toSm little",
+    "tsName": "toSm little",
+    "rustKey": "bn_serialization/to_sm_little"
+  },
+  {
+    "label": "BN fromSm big",
+    "tsName": "fromSm big",
+    "rustKey": "bn_serialization/from_sm_big"
+  },
+  {
+    "label": "BN fromSm little",
+    "tsName": "fromSm little",
+    "rustKey": "bn_serialization/from_sm_little"
+  },
+  {
+    "label": "BN fromScriptNum",
+    "tsName": "fromScriptNum",
+    "rustKey": "bn_serialization/from_script_num"
+  },
+  {
+    "label": "ECC Point.mul WNAF",
+    "tsName": "Point.mul (WNAF)",
+    "rustKey": "ecc_scalar/point_mul_wnaf"
+  },
+  {
+    "label": "ECC Point.mulCT",
+    "tsName": "Point.mulCT (constant-time)",
+    "rustKey": "ecc_scalar/point_mul_ct"
+  },
+  {
+    "label": "ECDSA sign",
+    "tsName": "ECDSA sign",
+    "rustKey": "ecdsa/sign"
+  },
+  {
+    "label": "ECDSA verify",
+    "tsName": "ECDSA verify",
+    "rustKey": "ecdsa/verify"
+  },
+  {
+    "label": "Script findAndDelete 4000 chunks 10%",
+    "tsName": "findAndDelete mixed script (4000 chunks, 10% matches, 32B data)",
+    "rustKey": "script_findanddelete/4000_chunks_10pct_32B"
+  },
+  {
+    "label": "Script findAndDelete 8000 chunks 5%",
+    "tsName": "findAndDelete mixed script (8000 chunks, 5% matches, 72B data)",
+    "rustKey": "script_findanddelete/8000_chunks_5pct_72B"
+  },
+  {
+    "label": "Script findAndDelete 8000 chunks 20%",
+    "tsName": "findAndDelete mixed script (8000 chunks, 20% matches, 72B data)",
+    "rustKey": "script_findanddelete/8000_chunks_20pct_72B"
+  },
+  {
+    "label": "Script findAndDelete 2000 chunks 300B",
+    "tsName": "findAndDelete mixed script (2000 chunks, 5% matches, 300B data)",
+    "rustKey": "script_findanddelete/2000_chunks_5pct_300B"
+  },
+  {
+    "label": "Script findAndDelete 12000 chunks 1%",
+    "tsName": "findAndDelete mixed script (12000 chunks, 1% matches, 32B data)",
+    "rustKey": "script_findanddelete/12000_chunks_1pct_32B"
+  },
+  {
+    "label": "Script serialization round trip",
+    "tsName": "Big script round trip",
+    "rustKey": "script_serialization/big_script_round_trip"
+  },
+  {
+    "label": "SymmetricKey encrypt large 2MB",
+    "tsName": "encrypt large 2MB",
+    "rustKey": "symmetric_key/encrypt_large_2MB"
+  },
+  {
+    "label": "SymmetricKey decrypt large 2MB",
+    "tsName": "decrypt large 2MB",
+    "rustKey": "symmetric_key/decrypt_large_2MB"
+  },
+  {
+    "label": "SymmetricKey encrypt 50 small",
+    "tsName": "encrypt 50 small",
+    "rustKey": "symmetric_key/encrypt_50_small"
+  },
+  {
+    "label": "SymmetricKey decrypt 50 small",
+    "tsName": "decrypt 50 small",
+    "rustKey": "symmetric_key/decrypt_50_small"
+  },
+  {
+    "label": "SymmetricKey encrypt 200 medium",
+    "tsName": "encrypt 200 medium",
+    "rustKey": "symmetric_key/encrypt_200_medium"
+  },
+  {
+    "label": "SymmetricKey decrypt 200 medium",
+    "tsName": "decrypt 200 medium",
+    "rustKey": "symmetric_key/decrypt_200_medium"
+  },
+  {
+    "label": "Transaction deep chain verify",
+    "tsName": "deep chain verify",
+    "rustKey": "transaction/deep_chain_verify"
+  },
+  {
+    "label": "Transaction wide verify",
+    "tsName": "wide transaction verify",
+    "rustKey": "transaction/wide_transaction_verify"
+  },
+  {
+    "label": "Transaction large verify",
+    "tsName": "large tx verify",
+    "rustKey": "transaction/large_tx_verify"
+  },
+  {
+    "label": "Transaction nested verify",
+    "tsName": "nested inputs verify",
+    "rustKey": "transaction/nested_inputs_verify"
+  },
+  {
+    "label": "Atomic BEEF serialize",
+    "tsName": "Transaction.toAtomicBEEF",
+    "rustKey": "atomic_beef/to_atomic_beef"
+  },
+  {
+    "label": "Atomic BEEF deserialize",
+    "tsName": "Transaction.fromAtomicBEEF",
+    "rustKey": "atomic_beef/from_atomic_beef"
+  },
+  {
+    "label": "Reader/Writer mixed ops",
+    "tsName": "mixed ops",
+    "rustKey": "reader_writer/mixed_ops"
+  },
+  {
+    "label": "Reader/Writer large payloads",
+    "tsName": "large payloads",
+    "rustKey": "reader_writer/large_payloads"
+  },
+  {
+    "label": "Reader/Writer 3000 small",
+    "tsName": "3000 small payloads",
+    "rustKey": "reader_writer/3000_small_payloads"
+  },
+  {
+    "label": "Reader/Writer 400 medium",
+    "tsName": "400 medium payloads",
+    "rustKey": "reader_writer/400_medium_payloads"
+  },
+  {
+    "label": "SHA-256 32B",
+    "tsName": "SHA-256 32B",
+    "rustKey": "hash/sha256_32B"
+  },
+  {
+    "label": "SHA-256 1KB",
+    "tsName": "SHA-256 1KB",
+    "rustKey": "hash/sha256_1KB"
+  },
+  {
+    "label": "SHA-256 1MB",
+    "tsName": "SHA-256 1MB",
+    "rustKey": "hash/sha256_1MB"
+  },
+  {
+    "label": "SHA-512 32B",
+    "tsName": "SHA-512 32B",
+    "rustKey": "hash/sha512_32B"
+  },
+  {
+    "label": "SHA-512 1KB",
+    "tsName": "SHA-512 1KB",
+    "rustKey": "hash/sha512_1KB"
+  },
+  {
+    "label": "SHA-512 1MB",
+    "tsName": "SHA-512 1MB",
+    "rustKey": "hash/sha512_1MB"
+  },
+  {
+    "label": "RIPEMD-160 32B",
+    "tsName": "RIPEMD-160 32B",
+    "rustKey": "hash/ripemd160_32B"
+  },
+  {
+    "label": "RIPEMD-160 1KB",
+    "tsName": "RIPEMD-160 1KB",
+    "rustKey": "hash/ripemd160_1KB"
+  },
+  {
+    "label": "RIPEMD-160 1MB",
+    "tsName": "RIPEMD-160 1MB",
+    "rustKey": "hash/ripemd160_1MB"
+  },
+  {
+    "label": "HMAC-SHA256 1KB",
+    "tsName": "HMAC-SHA256 1KB",
+    "rustKey": "hash/hmac_sha256_1KB"
+  },
+  {
+    "label": "HMAC-SHA512 1KB",
+    "tsName": "HMAC-SHA512 1KB",
+    "rustKey": "hash/hmac_sha512_1KB"
+  },
+  {
+    "label": "ECIES Electrum encrypt 32B",
+    "tsName": "ECIES Electrum encrypt 32B",
+    "rustKey": "ecies/electrum_encrypt_32B"
+  },
+  {
+    "label": "ECIES Electrum encrypt 1KB",
+    "tsName": "ECIES Electrum encrypt 1KB",
+    "rustKey": "ecies/electrum_encrypt_1KB"
+  },
+  {
+    "label": "ECIES Electrum encrypt 64KB",
+    "tsName": "ECIES Electrum encrypt 64KB",
+    "rustKey": "ecies/electrum_encrypt_64KB"
+  },
+  {
+    "label": "ECIES Electrum decrypt 32B",
+    "tsName": "ECIES Electrum decrypt 32B",
+    "rustKey": "ecies/electrum_decrypt_32B"
+  },
+  {
+    "label": "ECIES Electrum decrypt 1KB",
+    "tsName": "ECIES Electrum decrypt 1KB",
+    "rustKey": "ecies/electrum_decrypt_1KB"
+  },
+  {
+    "label": "ECIES Electrum decrypt 64KB",
+    "tsName": "ECIES Electrum decrypt 64KB",
+    "rustKey": "ecies/electrum_decrypt_64KB"
+  },
+  {
+    "label": "ECIES Bitcore encrypt 32B",
+    "tsName": "ECIES Bitcore encrypt 32B",
+    "rustKey": "ecies/bitcore_encrypt_32B"
+  },
+  {
+    "label": "ECIES Bitcore encrypt 1KB",
+    "tsName": "ECIES Bitcore encrypt 1KB",
+    "rustKey": "ecies/bitcore_encrypt_1KB"
+  },
+  {
+    "label": "ECIES Bitcore encrypt 64KB",
+    "tsName": "ECIES Bitcore encrypt 64KB",
+    "rustKey": "ecies/bitcore_encrypt_64KB"
+  },
+  {
+    "label": "ECIES Bitcore decrypt 32B",
+    "tsName": "ECIES Bitcore decrypt 32B",
+    "rustKey": "ecies/bitcore_decrypt_32B"
+  },
+  {
+    "label": "ECIES Bitcore decrypt 1KB",
+    "tsName": "ECIES Bitcore decrypt 1KB",
+    "rustKey": "ecies/bitcore_decrypt_1KB"
+  },
+  {
+    "label": "ECIES Bitcore decrypt 64KB",
+    "tsName": "ECIES Bitcore decrypt 64KB",
+    "rustKey": "ecies/bitcore_decrypt_64KB"
+  }
+]

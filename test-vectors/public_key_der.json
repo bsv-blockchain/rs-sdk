@@ -1,0 +1,18 @@
+[
+  {
+    "description": "Private key = 1, public key = G (generator point)",
+    "private_key_hex": "0000000000000000000000000000000000000000000000000000000000000001",
+    "public_key_compressed": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+    "public_key_uncompressed": "0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8",
+    "address_mainnet": "1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH",
+    "address_prefix": "00"
+  },
+  {
+    "description": "Private key = 2, public key = 2G",
+    "private_key_hex": "0000000000000000000000000000000000000000000000000000000000000002",
+    "public_key_compressed": "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+    "public_key_uncompressed": "04c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a",
+    "address_mainnet": "1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP",
+    "address_prefix": "00"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "description": "Schnorr DLEQ ZKP round-trip verification with known keys",
+    "note": "Proofs contain random nonces so only round-trip verification is testable. The proof format is {R: Point, S': Point, z: BigNumber} matching TS SDK Schnorr.ts.",
+    "test_cases": [
+      {
+        "description": "a=1, b=2: simplest case",
+        "a_hex": "0000000000000000000000000000000000000000000000000000000000000001",
+        "b_hex": "0000000000000000000000000000000000000000000000000000000000000002",
+        "A_compressed": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "B_compressed": "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "S_compressed": "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+      },
+      {
+        "description": "a=3, b=7",
+        "a_hex": "0000000000000000000000000000000000000000000000000000000000000003",
+        "b_hex": "0000000000000000000000000000000000000000000000000000000000000007",
+        "A_compressed": "02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "B_compressed": "025cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc",
+        "S_compressed_note": "S = a*B = 3*(7*G) = 21*G"
+      }
+    ]
+  }
+]

@@ -1,0 +1,190 @@
+{
+  "conversions": [
+    {
+      "hex": "00",
+      "value": 0,
+      "bytes_be": [],
+      "bytes_le": [],
+      "bit_length": 0,
+      "byte_length": 0,
+      "is_zero": true,
+      "is_odd": false,
+      "note": "zero"
+    },
+    {
+      "hex": "01",
+      "value": 1,
+      "bytes_be": [1],
+      "bytes_le": [1],
+      "bit_length": 1,
+      "byte_length": 1,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "one"
+    },
+    {
+      "hex": "ff",
+      "value": 255,
+      "bytes_be": [255],
+      "bytes_le": [255],
+      "bit_length": 8,
+      "byte_length": 1,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "max byte"
+    },
+    {
+      "hex": "0100",
+      "value": 256,
+      "bytes_be": [1, 0],
+      "bytes_le": [0, 1],
+      "bit_length": 9,
+      "byte_length": 2,
+      "is_zero": false,
+      "is_odd": false,
+      "note": "256"
+    },
+    {
+      "hex": "deadbeef",
+      "value": 3735928559,
+      "bytes_be": [222, 173, 190, 239],
+      "bytes_le": [239, 190, 173, 222],
+      "bit_length": 32,
+      "byte_length": 4,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "deadbeef"
+    },
+    {
+      "hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "bytes_be_32": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+      "bit_length": 256,
+      "byte_length": 32,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "max 256-bit value"
+    },
+    {
+      "hex": "fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+      "bit_length": 256,
+      "byte_length": 32,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "secp256k1 p"
+    },
+    {
+      "hex": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+      "bit_length": 256,
+      "byte_length": 32,
+      "is_zero": false,
+      "is_odd": true,
+      "note": "secp256k1 n (order)"
+    }
+  ],
+  "arithmetic": [
+    {
+      "op": "add",
+      "a": "00",
+      "b": "00",
+      "expected": "0"
+    },
+    {
+      "op": "add",
+      "a": "01",
+      "b": "02",
+      "expected": "3"
+    },
+    {
+      "op": "add",
+      "a": "ff",
+      "b": "01",
+      "expected": "100"
+    },
+    {
+      "op": "add",
+      "a": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+      "b": "01",
+      "expected": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142"
+    },
+    {
+      "op": "sub",
+      "a": "05",
+      "b": "03",
+      "expected": "2"
+    },
+    {
+      "op": "sub",
+      "a": "0100",
+      "b": "01",
+      "expected": "ff"
+    },
+    {
+      "op": "mul",
+      "a": "ff",
+      "b": "ff",
+      "expected": "fe01"
+    },
+    {
+      "op": "mul",
+      "a": "00",
+      "b": "ff",
+      "expected": "0"
+    },
+    {
+      "op": "mul",
+      "a": "02",
+      "b": "03",
+      "expected": "6"
+    },
+    {
+      "op": "div",
+      "a": "0a",
+      "b": "02",
+      "expected": "5"
+    },
+    {
+      "op": "div",
+      "a": "ff",
+      "b": "10",
+      "expected": "f"
+    },
+    {
+      "op": "div",
+      "a": "0a",
+      "b": "03",
+      "expected": "3"
+    },
+    {
+      "op": "mod",
+      "a": "0a",
+      "b": "03",
+      "expected": "1"
+    },
+    {
+      "op": "mod",
+      "a": "ff",
+      "b": "10",
+      "expected": "f"
+    },
+    {
+      "op": "gcd",
+      "a": "0c",
+      "b": "08",
+      "expected": "4"
+    },
+    {
+      "op": "invm",
+      "a": "03",
+      "m": "0b",
+      "expected": "4",
+      "note": "3 * 4 mod 11 = 1"
+    },
+    {
+      "op": "invm",
+      "a": "07",
+      "m": "fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141",
+      "expected": "49249249249249249249249249249248c79facd43214c011123c1b03a93412a5",
+      "note": "7^-1 mod secp256k1_n"
+    }
+  ]
+}
