@@ -96,7 +96,13 @@ macro_rules! impl_json_method {
             &'life0 self,
             args: $args_type,
             originator: Option<&'life1 str>,
-        ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$result_type, WalletError>> + ::core::marker::Send + 'async_trait>>
+        ) -> ::core::pin::Pin<
+            Box<
+                dyn ::core::future::Future<Output = Result<$result_type, WalletError>>
+                    + ::core::marker::Send
+                    + 'async_trait,
+            >,
+        >
         where
             'life0: 'async_trait,
             'life1: 'async_trait,
@@ -106,8 +112,9 @@ macro_rules! impl_json_method {
                 let json_bytes = serde_json::to_vec(&args)
                     .map_err(|e| WalletError::Internal(format!("JSON serialize failed: {}", e)))?;
                 let response = self.api($endpoint, &json_bytes, originator).await?;
-                let result: $result_type = serde_json::from_slice(&response)
-                    .map_err(|e| WalletError::Internal(format!("JSON deserialize failed: {}", e)))?;
+                let result: $result_type = serde_json::from_slice(&response).map_err(|e| {
+                    WalletError::Internal(format!("JSON deserialize failed: {}", e))
+                })?;
                 Ok(result)
             })
         }
@@ -117,7 +124,13 @@ macro_rules! impl_json_method {
         fn $method<'life0, 'life1, 'async_trait>(
             &'life0 self,
             originator: Option<&'life1 str>,
-        ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$result_type, WalletError>> + ::core::marker::Send + 'async_trait>>
+        ) -> ::core::pin::Pin<
+            Box<
+                dyn ::core::future::Future<Output = Result<$result_type, WalletError>>
+                    + ::core::marker::Send
+                    + 'async_trait,
+            >,
+        >
         where
             'life0: 'async_trait,
             'life1: 'async_trait,
@@ -126,8 +139,9 @@ macro_rules! impl_json_method {
             Box::pin(async move {
                 let json_bytes = b"{}";
                 let response = self.api($endpoint, json_bytes, originator).await?;
-                let result: $result_type = serde_json::from_slice(&response)
-                    .map_err(|e| WalletError::Internal(format!("JSON deserialize failed: {}", e)))?;
+                let result: $result_type = serde_json::from_slice(&response).map_err(|e| {
+                    WalletError::Internal(format!("JSON deserialize failed: {}", e))
+                })?;
                 Ok(result)
             })
         }

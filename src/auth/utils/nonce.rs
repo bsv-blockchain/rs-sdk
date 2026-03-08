@@ -205,7 +205,13 @@ mod tests {
                 &'life0 self,
                 _args: $args,
                 _originator: Option<&'life1 str>,
-            ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$ret, WalletError>> + ::core::marker::Send + 'async_trait>>
+            ) -> ::core::pin::Pin<
+                Box<
+                    dyn ::core::future::Future<Output = Result<$ret, WalletError>>
+                        + ::core::marker::Send
+                        + 'async_trait,
+                >,
+            >
             where
                 'life0: 'async_trait,
                 'life1: 'async_trait,
@@ -220,7 +226,13 @@ mod tests {
             fn $name<'life0, 'life1, 'async_trait>(
                 &'life0 self,
                 _originator: Option<&'life1 str>,
-            ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$ret, WalletError>> + ::core::marker::Send + 'async_trait>>
+            ) -> ::core::pin::Pin<
+                Box<
+                    dyn ::core::future::Future<Output = Result<$ret, WalletError>>
+                        + ::core::marker::Send
+                        + 'async_trait,
+                >,
+            >
             where
                 'life0: 'async_trait,
                 'life1: 'async_trait,

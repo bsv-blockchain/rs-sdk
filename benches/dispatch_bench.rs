@@ -24,8 +24,7 @@ use bsv::wallet::interfaces::{
     RelinquishCertificateArgs, RelinquishCertificateResult, RelinquishOutputArgs,
     RelinquishOutputResult, RevealCounterpartyKeyLinkageArgs, RevealCounterpartyKeyLinkageResult,
     RevealSpecificKeyLinkageArgs, RevealSpecificKeyLinkageResult, SignActionArgs, SignActionResult,
-    VerifyHmacArgs, VerifyHmacResult, VerifySignatureArgs, VerifySignatureResult,
-    WalletInterface,
+    VerifyHmacArgs, VerifyHmacResult, VerifySignatureArgs, VerifySignatureResult, WalletInterface,
 };
 use bsv::wallet::types::Protocol;
 
@@ -117,8 +116,7 @@ impl WalletInterface for NoOpWallet {
     ) -> Result<GetPublicKeyResult, WalletError> {
         Ok(GetPublicKeyResult {
             public_key: bsv::primitives::public_key::PublicKey::from_private_key(
-                &bsv::primitives::private_key::PrivateKey::from_hex("1")
-                    .expect("valid hex"),
+                &bsv::primitives::private_key::PrivateKey::from_hex("1").expect("valid hex"),
             ),
         })
     }
@@ -274,10 +272,7 @@ impl WalletInterface for NoOpWallet {
         })
     }
 
-    async fn get_height(
-        &self,
-        _originator: Option<&str>,
-    ) -> Result<GetHeightResult, WalletError> {
+    async fn get_height(&self, _originator: Option<&str>) -> Result<GetHeightResult, WalletError> {
         Ok(GetHeightResult { height: 800000 })
     }
 
@@ -335,8 +330,7 @@ impl WalletInterfaceBoxed for NoOpWallet {
     ) -> Result<GetPublicKeyResult, WalletError> {
         Ok(GetPublicKeyResult {
             public_key: bsv::primitives::public_key::PublicKey::from_private_key(
-                &bsv::primitives::private_key::PrivateKey::from_hex("1")
-                    .expect("valid hex"),
+                &bsv::primitives::private_key::PrivateKey::from_hex("1").expect("valid hex"),
             ),
         })
     }
@@ -368,7 +362,9 @@ fn make_get_pk_args() -> GetPublicKeyArgs {
 
 async fn call_rpitit_generic<W: WalletInterface>(w: &W) -> GetPublicKeyResult {
     let args = make_get_pk_args();
-    w.get_public_key(args, None).await.expect("no-op should succeed")
+    w.get_public_key(args, None)
+        .await
+        .expect("no-op should succeed")
 }
 
 // ---------------------------------------------------------------------------
@@ -377,7 +373,9 @@ async fn call_rpitit_generic<W: WalletInterface>(w: &W) -> GetPublicKeyResult {
 
 async fn call_boxed_dyn(w: &dyn WalletInterfaceBoxed) -> GetPublicKeyResult {
     let args = make_get_pk_args();
-    w.get_public_key_boxed(args, None).await.expect("no-op should succeed")
+    w.get_public_key_boxed(args, None)
+        .await
+        .expect("no-op should succeed")
 }
 
 // ---------------------------------------------------------------------------
@@ -415,9 +413,7 @@ fn dispatch_benchmarks(c: &mut Criterion) {
     // 2. Generic function call (RPITIT generic dispatch / monomorphization)
     group.bench_function("rpitit_generic", |bencher| {
         bencher.iter(|| {
-            rt.block_on(async {
-                criterion::black_box(call_rpitit_generic(&wallet).await)
-            })
+            rt.block_on(async { criterion::black_box(call_rpitit_generic(&wallet).await) })
         });
     });
 
@@ -425,9 +421,7 @@ fn dispatch_benchmarks(c: &mut Criterion) {
     let wallet_boxed: &dyn WalletInterfaceBoxed = &wallet;
     group.bench_function("async_trait_dyn", |bencher| {
         bencher.iter(|| {
-            rt.block_on(async {
-                criterion::black_box(call_boxed_dyn(wallet_boxed).await)
-            })
+            rt.block_on(async { criterion::black_box(call_boxed_dyn(wallet_boxed).await) })
         });
     });
 

@@ -54,7 +54,13 @@ macro_rules! impl_wire_method {
             &'life0 self,
             args: $args_type,
             originator: Option<&'life1 str>,
-        ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$result_type, WalletError>> + ::core::marker::Send + 'async_trait>>
+        ) -> ::core::pin::Pin<
+            Box<
+                dyn ::core::future::Future<Output = Result<$result_type, WalletError>>
+                    + ::core::marker::Send
+                    + 'async_trait,
+            >,
+        >
         where
             'life0: 'async_trait,
             'life1: 'async_trait,
@@ -74,7 +80,13 @@ macro_rules! impl_wire_method {
         fn $method<'life0, 'life1, 'async_trait>(
             &'life0 self,
             originator: Option<&'life1 str>,
-        ) -> ::core::pin::Pin<Box<dyn ::core::future::Future<Output = Result<$result_type, WalletError>> + ::core::marker::Send + 'async_trait>>
+        ) -> ::core::pin::Pin<
+            Box<
+                dyn ::core::future::Future<Output = Result<$result_type, WalletError>>
+                    + ::core::marker::Send
+                    + 'async_trait,
+            >,
+        >
         where
             'life0: 'async_trait,
             'life1: 'async_trait,
