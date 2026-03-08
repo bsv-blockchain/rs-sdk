@@ -21,7 +21,7 @@ use crate::primitives::signature::Signature;
 fn truncate_to_n(msg: &BigNumber, trunc_only: bool) -> BigNumber {
     let curve = Curve::secp256k1();
     let n_bit_length = curve.n.bit_length();
-    let delta = msg.byte_length() * 8 - n_bit_length;
+    let delta = (msg.byte_length() * 8).saturating_sub(n_bit_length);
 
     let mut result = msg.clone();
     if delta > 0 {
