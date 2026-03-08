@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-03-08
+
+### Fixed
+- **Critical: prevent unsigned overflow panic in `truncate_to_n`** -- use `saturating_sub` for `msg.byte_length() * 8 - n_bit_length` in ECDSA signature truncation. SHA-256 hashes with leading zero bytes (byte_length < 32) would cause a subtract-with-overflow panic. Matches TypeScript SDK behavior where negative delta harmlessly skips the shift.
+
 ## [0.1.2] - 2026-03-08
 
 ### Added
