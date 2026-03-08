@@ -151,6 +151,14 @@ impl<W: WalletInterface + Clone + 'static> AuthFetch<W> {
             }
         }
 
+        // Process any pending incoming messages (the transport enqueues the
+        // server's response into the incoming channel during send_general;
+        // the peer must process it to route to the general_message channel).
+        {
+            let mut peer = auth_peer.peer.lock().await;
+            peer.process_pending().await?;
+        }
+
         // Wait for the response matching our nonce
         let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(30);
         loop {

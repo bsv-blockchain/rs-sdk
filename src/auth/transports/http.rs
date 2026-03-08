@@ -5,11 +5,10 @@
 //! and Go simplified_http_transport.go.
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use async_trait::async_trait;
 use reqwest::Client;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::mpsc;
 
 use super::Transport;
 use crate::auth::error::AuthError;
@@ -67,7 +66,9 @@ pub struct SimplifiedHTTPTransport {
     /// Sender half for incoming messages.
     incoming_tx: mpsc::Sender<AuthMessage>,
     /// Receiver half, wrapped for interior mutability (take-once pattern).
-    incoming_rx: Arc<Mutex<Option<mpsc::Receiver<AuthMessage>>>>,
+    /// Uses std::sync::Mutex because subscribe() is a sync fn that may be
+    /// called from within an async runtime (Peer::new calls it synchronously).
+    incoming_rx: std::sync::Mutex<Option<mpsc::Receiver<AuthMessage>>>,
 }
 
 impl SimplifiedHTTPTransport {
@@ -80,7 +81,7 @@ impl SimplifiedHTTPTransport {
             base_url: base_url.trim_end_matches('/').to_string(),
             client: Client::new(),
             incoming_tx: tx,
-            incoming_rx: Arc::new(Mutex::new(Some(rx))),
+            incoming_rx: std::sync::Mutex::new(Some(rx)),
         }
     }
 
@@ -336,11 +337,9 @@ impl Transport for SimplifiedHTTPTransport {
     }
 
     fn subscribe(&self) -> mpsc::Receiver<AuthMessage> {
-        // Use blocking lock since this is a sync method.
-        // The lock is only held briefly to take the receiver.
-        let mut guard = self.incoming_rx.blocking_lock();
-        // SAFETY: subscribe() is a take-once API -- callers must only invoke once per transport.
-        guard
+        self.incoming_rx
+            .lock()
+            .expect("incoming_rx mutex poisoned")
             .take()
             .expect("subscribe() can only be called once per transport")
     }
