@@ -13,9 +13,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust-sdk
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -24,9 +21,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust-sdk
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -35,9 +29,6 @@ jobs:
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust-sdk
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -48,9 +39,6 @@ jobs:
   fmt:
     name: Format
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust-sdk
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
