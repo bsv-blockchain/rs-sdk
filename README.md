@@ -128,53 +128,6 @@ Full benchmark report: [`Rust-vs-TS-performance.md`](Rust-vs-TS-performance.md)
 
 Required for stabilized `is_multiple_of`, `div_ceil`, and other standard library features used throughout the crate.
 
-## Publishing to crates.io
-
-Step-by-step guide for publishing the SDK:
-
-### 1. Verify crate name availability
-
-Visit [crates.io/crates/bsv-sdk](https://crates.io/crates/bsv-sdk) to check if the name is available. If taken, consider alternatives such as `bsv-blockchain-sdk`.
-
-### 2. Create a crates.io account
-
-1. Visit [crates.io](https://crates.io) and log in with GitHub
-2. Generate an API token at [crates.io/settings/tokens](https://crates.io/settings/tokens)
-
-### 3. Log in from the CLI
-
-```bash
-cargo login <your-api-token>
-```
-
-### 4. Verify LICENSE file exists
-
-Ensure the `LICENSE` file is present in the `rust-sdk/` directory (referenced by `license-file` in Cargo.toml).
-
-### 5. Update repository URL
-
-Update the `repository` field in `Cargo.toml` to the actual GitHub repository URL.
-
-### 6. Dry-run validation
-
-```bash
-cd rust-sdk
-cargo publish --dry-run
-```
-
-Fix any errors reported (missing fields, invalid metadata, etc.).
-
-### 7. Publish
-
-```bash
-cargo publish
-```
-
-### 8. Verify publication
-
-- Visit [crates.io/crates/bsv-sdk](https://crates.io/crates/bsv-sdk) for the published crate
-- Visit [docs.rs/bsv-sdk](https://docs.rs/bsv-sdk) for auto-generated documentation
-
 ## License
 
 Open BSV License. See [LICENSE](LICENSE) for details.

@@ -16,3 +16,6 @@ Thumbs.db
 # Environment
 .env
 .env.*
+
+# Internal docs
+PUBLISHING.md
