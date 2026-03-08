@@ -35,7 +35,7 @@ use bsv::wallet::types::Protocol;
 
 struct NoOpWallet;
 
-#[allow(async_fn_in_trait)]
+#[async_trait]
 impl WalletInterface for NoOpWallet {
     async fn create_action(
         &self,
@@ -305,7 +305,7 @@ impl WalletInterface for NoOpWallet {
         _originator: Option<&str>,
     ) -> Result<GetVersionResult, WalletError> {
         Ok(GetVersionResult {
-            version: "0.1.0".into(),
+            version: "0.1.1".into(),
         })
     }
 }
