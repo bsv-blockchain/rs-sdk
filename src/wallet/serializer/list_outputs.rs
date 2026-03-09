@@ -3,6 +3,7 @@
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 
 const TAG_QUERY_MODE_ALL: u8 = 1;
 const TAG_QUERY_MODE_ANY: u8 = 2;
@@ -32,12 +33,12 @@ pub fn serialize_list_outputs_args(args: &ListOutputsArgs) -> Result<Vec<u8>, Wa
             }
             None => write_byte(w, NEGATIVE_ONE_BYTE)?,
         }
-        write_optional_bool(w, args.include_custom_instructions)?;
-        write_optional_bool(w, args.include_tags)?;
-        write_optional_bool(w, args.include_labels)?;
+        write_optional_bool(w, args.include_custom_instructions.0)?;
+        write_optional_bool(w, args.include_tags.0)?;
+        write_optional_bool(w, args.include_labels.0)?;
         write_optional_uint32(w, args.limit)?;
         write_optional_uint32(w, args.offset)?;
-        write_optional_bool(w, args.seek_permission)
+        write_optional_bool(w, args.seek_permission.0)
     })
 }
 
@@ -57,12 +58,12 @@ pub fn deserialize_list_outputs_args(data: &[u8]) -> Result<ListOutputsArgs, Wal
         OUTPUT_INCLUDE_ENTIRE_TRANSACTIONS => Some(OutputInclude::EntireTransactions),
         _ => None,
     };
-    let include_custom_instructions = read_optional_bool(&mut r)?;
-    let include_tags = read_optional_bool(&mut r)?;
-    let include_labels = read_optional_bool(&mut r)?;
+    let include_custom_instructions = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_tags = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_labels = BooleanDefaultFalse(read_optional_bool(&mut r)?);
     let limit = read_optional_uint32(&mut r)?;
     let offset = read_optional_uint32(&mut r)?;
-    let seek_permission = read_optional_bool(&mut r)?;
+    let seek_permission = BooleanDefaultTrue(read_optional_bool(&mut r)?);
     Ok(ListOutputsArgs {
         basket,
         tags,

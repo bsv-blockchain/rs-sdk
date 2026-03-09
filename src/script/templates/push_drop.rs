@@ -85,6 +85,96 @@ impl PushDrop {
         74
     }
 
+    /// Decode a PushDrop locking script, recovering the embedded data fields.
+    ///
+    /// Parses the script pattern:
+    /// `<field_1> <field_2> ... <field_N> OP_DROP|OP_2DROP... <pubkey> OP_CHECKSIG`
+    ///
+    /// Returns a PushDrop with the extracted fields, no private key, and default sighash.
+    pub fn decode(script: &LockingScript) -> Result<PushDrop, ScriptError> {
+        let chunks = script.chunks();
+        if chunks.len() < 3 {
+            return Err(ScriptError::InvalidScript(
+                "PushDrop::decode: script too short".into(),
+            ));
+        }
+
+        // Last chunk must be OP_CHECKSIG
+        let last = &chunks[chunks.len() - 1];
+        if last.op != Op::OpCheckSig {
+            return Err(ScriptError::InvalidScript(
+                "PushDrop::decode: last opcode must be OP_CHECKSIG".into(),
+            ));
+        }
+
+        // Second-to-last must be a pubkey data push
+        let pubkey_chunk = &chunks[chunks.len() - 2];
+        if pubkey_chunk.data.is_none() {
+            return Err(ScriptError::InvalidScript(
+                "PushDrop::decode: expected pubkey data push before OP_CHECKSIG".into(),
+            ));
+        }
+
+        // Walk backwards from before the pubkey to count OP_DROP and OP_2DROP
+        let mut drop_field_count = 0usize;
+        let mut pos = chunks.len() - 3; // start just before pubkey
+        loop {
+            let chunk = &chunks[pos];
+            if chunk.op == Op::Op2Drop {
+                drop_field_count += 2;
+            } else if chunk.op == Op::OpDrop {
+                drop_field_count += 1;
+            } else {
+                break;
+            }
+            if pos == 0 {
+                break;
+            }
+            pos -= 1;
+        }
+
+        if drop_field_count == 0 {
+            return Err(ScriptError::InvalidScript(
+                "PushDrop::decode: no OP_DROP/OP_2DROP found".into(),
+            ));
+        }
+
+        // The leading chunks (0..drop_field_count) should be data pushes
+        if drop_field_count > pos + 1 {
+            return Err(ScriptError::InvalidScript(
+                "PushDrop::decode: not enough data pushes for drop count".into(),
+            ));
+        }
+
+        // Data fields are the first `drop_field_count` chunks
+        // pos currently points to the last non-drop chunk before drops, which should be
+        // the last data field. But we need to calculate: data fields end at the chunk
+        // just before the first drop opcode.
+        let data_end = pos + 1; // exclusive end of data field range
+        if data_end != drop_field_count {
+            return Err(ScriptError::InvalidScript(format!(
+                "PushDrop::decode: field count mismatch: {} data chunks but {} drops",
+                data_end, drop_field_count
+            )));
+        }
+
+        let mut fields = Vec::with_capacity(drop_field_count);
+        for chunk in &chunks[0..drop_field_count] {
+            let data = chunk.data.as_ref().ok_or_else(|| {
+                ScriptError::InvalidScript(
+                    "PushDrop::decode: expected data push for field".into(),
+                )
+            })?;
+            fields.push(data.clone());
+        }
+
+        Ok(PushDrop {
+            fields,
+            private_key: None,
+            sighash_type: SIGHASH_ALL | SIGHASH_FORKID,
+        })
+    }
+
     /// Create a data push chunk with appropriate opcode for the data length.
     fn make_data_push(data: &[u8]) -> ScriptChunk {
         let len = data.len();
@@ -168,6 +258,50 @@ impl ScriptTemplateUnlock for PushDrop {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // -----------------------------------------------------------------------
+    // PushDrop::decode tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_pushdrop_decode_roundtrip_one_field() {
+        let key = PrivateKey::from_hex("1").unwrap();
+        let fields = vec![vec![0xca, 0xfe, 0xba, 0xbe]];
+        let pd = PushDrop::new(fields.clone(), key);
+        let lock_script = pd.lock().unwrap();
+
+        let decoded = PushDrop::decode(&lock_script).unwrap();
+        assert_eq!(decoded.fields, fields, "decode should recover 1 field");
+    }
+
+    #[test]
+    fn test_pushdrop_decode_roundtrip_two_fields() {
+        let key = PrivateKey::from_hex("1").unwrap();
+        let fields = vec![vec![0x01, 0x02], vec![0x03, 0x04]];
+        let pd = PushDrop::new(fields.clone(), key);
+        let lock_script = pd.lock().unwrap();
+
+        let decoded = PushDrop::decode(&lock_script).unwrap();
+        assert_eq!(decoded.fields, fields, "decode should recover 2 fields (OP_2DROP)");
+    }
+
+    #[test]
+    fn test_pushdrop_decode_roundtrip_three_fields() {
+        let key = PrivateKey::from_hex("1").unwrap();
+        let fields = vec![vec![0x01], vec![0x02], vec![0x03]];
+        let pd = PushDrop::new(fields.clone(), key);
+        let lock_script = pd.lock().unwrap();
+
+        let decoded = PushDrop::decode(&lock_script).unwrap();
+        assert_eq!(decoded.fields, fields, "decode should recover 3 fields (OP_2DROP + OP_DROP)");
+    }
+
+    #[test]
+    fn test_pushdrop_decode_non_pushdrop_script_errors() {
+        // A simple P2PKH script should not decode as PushDrop
+        let script = LockingScript::from_binary(&[0x76, 0xa9, 0x14]);
+        assert!(PushDrop::decode(&script).is_err());
+    }
 
     // -----------------------------------------------------------------------
     // PushDrop lock: 1 field produces script with data and OP_DROP

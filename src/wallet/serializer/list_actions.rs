@@ -3,6 +3,7 @@
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 
 const LABEL_QUERY_MODE_ANY: u8 = 1;
 const LABEL_QUERY_MODE_ALL: u8 = 2;
@@ -30,15 +31,15 @@ pub fn serialize_list_actions_args(args: &ListActionsArgs) -> Result<Vec<u8>, Wa
             Some(QueryMode::All) => write_byte(w, LABEL_QUERY_MODE_ALL)?,
             None => write_byte(w, NEGATIVE_ONE_BYTE)?,
         }
-        write_optional_bool(w, args.include_labels)?;
-        write_optional_bool(w, args.include_inputs)?;
-        write_optional_bool(w, args.include_input_source_locking_scripts)?;
-        write_optional_bool(w, args.include_input_unlocking_scripts)?;
-        write_optional_bool(w, args.include_outputs)?;
-        write_optional_bool(w, args.include_output_locking_scripts)?;
+        write_optional_bool(w, args.include_labels.0)?;
+        write_optional_bool(w, args.include_inputs.0)?;
+        write_optional_bool(w, args.include_input_source_locking_scripts.0)?;
+        write_optional_bool(w, args.include_input_unlocking_scripts.0)?;
+        write_optional_bool(w, args.include_outputs.0)?;
+        write_optional_bool(w, args.include_output_locking_scripts.0)?;
         write_optional_uint32(w, args.limit)?;
         write_optional_uint32(w, args.offset)?;
-        write_optional_bool(w, args.seek_permission)
+        write_optional_bool(w, args.seek_permission.0)
     })
 }
 
@@ -51,15 +52,15 @@ pub fn deserialize_list_actions_args(data: &[u8]) -> Result<ListActionsArgs, Wal
         LABEL_QUERY_MODE_ALL => Some(QueryMode::All),
         _ => None,
     };
-    let include_labels = read_optional_bool(&mut r)?;
-    let include_inputs = read_optional_bool(&mut r)?;
-    let include_input_source_locking_scripts = read_optional_bool(&mut r)?;
-    let include_input_unlocking_scripts = read_optional_bool(&mut r)?;
-    let include_outputs = read_optional_bool(&mut r)?;
-    let include_output_locking_scripts = read_optional_bool(&mut r)?;
+    let include_labels = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_inputs = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_input_source_locking_scripts = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_input_unlocking_scripts = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_outputs = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+    let include_output_locking_scripts = BooleanDefaultFalse(read_optional_bool(&mut r)?);
     let limit = read_optional_uint32(&mut r)?;
     let offset = read_optional_uint32(&mut r)?;
-    let seek_permission = read_optional_bool(&mut r)?;
+    let seek_permission = BooleanDefaultTrue(read_optional_bool(&mut r)?);
     Ok(ListActionsArgs {
         labels,
         label_query_mode,

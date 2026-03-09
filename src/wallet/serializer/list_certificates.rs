@@ -5,6 +5,7 @@ use super::certificate_ser::{deserialize_certificate, serialize_certificate};
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::BooleanDefaultFalse;
 use std::collections::HashMap;
 
 pub fn serialize_list_certificates_args(
@@ -27,7 +28,7 @@ pub fn serialize_list_certificates_args(
         // Privileged params
         write_privileged_params(
             w,
-            args.privileged,
+            args.privileged.0,
             &args.privileged_reason.clone().unwrap_or_default(),
         )
     })
@@ -62,7 +63,7 @@ pub fn deserialize_list_certificates_args(
         types,
         limit,
         offset,
-        privileged,
+        privileged: BooleanDefaultFalse(privileged),
         privileged_reason: if privileged_reason.is_empty() {
             None
         } else {

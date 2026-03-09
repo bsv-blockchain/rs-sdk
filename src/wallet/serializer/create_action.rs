@@ -3,6 +3,7 @@
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 
 const TRUST_SELF_KNOWN: u8 = 1;
 
@@ -64,8 +65,8 @@ pub fn serialize_create_action_args(args: &CreateActionArgs) -> Result<Vec<u8>, 
         // Options
         if let Some(ref opts) = args.options {
             write_byte(w, 1)?;
-            write_optional_bool(w, opts.sign_and_process)?;
-            write_optional_bool(w, opts.accept_delayed_broadcast)?;
+            write_optional_bool(w, opts.sign_and_process.0)?;
+            write_optional_bool(w, opts.accept_delayed_broadcast.0)?;
             // TrustSelf
             match opts.trust_self {
                 Some(TrustSelf::Known) => write_byte(w, TRUST_SELF_KNOWN)?,
@@ -81,8 +82,8 @@ pub fn serialize_create_action_args(args: &CreateActionArgs) -> Result<Vec<u8>, 
                     write_raw_bytes(w, &txid_bytes)?;
                 }
             }
-            write_optional_bool(w, opts.return_txid_only)?;
-            write_optional_bool(w, opts.no_send)?;
+            write_optional_bool(w, opts.return_txid_only.0)?;
+            write_optional_bool(w, opts.no_send.0)?;
             // NoSendChange outpoints
             if opts.no_send_change.is_empty() {
                 write_varint(w, NEGATIVE_ONE)?;
@@ -104,7 +105,7 @@ pub fn serialize_create_action_args(args: &CreateActionArgs) -> Result<Vec<u8>, 
                     write_raw_bytes(w, &txid_bytes)?;
                 }
             }
-            write_optional_bool(w, opts.randomize_outputs)?;
+            write_optional_bool(w, opts.randomize_outputs.0)?;
         } else {
             write_byte(w, 0)?;
         }
@@ -194,8 +195,8 @@ pub fn deserialize_create_action_args(data: &[u8]) -> Result<CreateActionArgs, W
     // Options
     let options_flag = read_byte(&mut r)?;
     let options = if options_flag == 1 {
-        let sign_and_process = read_optional_bool(&mut r)?;
-        let accept_delayed_broadcast = read_optional_bool(&mut r)?;
+        let sign_and_process = BooleanDefaultTrue(read_optional_bool(&mut r)?);
+        let accept_delayed_broadcast = BooleanDefaultTrue(read_optional_bool(&mut r)?);
         let trust_self_byte = read_byte(&mut r)?;
         let trust_self = if trust_self_byte == TRUST_SELF_KNOWN {
             Some(TrustSelf::Known)
@@ -214,8 +215,8 @@ pub fn deserialize_create_action_args(data: &[u8]) -> Result<CreateActionArgs, W
             }
             txids
         };
-        let return_txid_only = read_optional_bool(&mut r)?;
-        let no_send = read_optional_bool(&mut r)?;
+        let return_txid_only = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+        let no_send = BooleanDefaultFalse(read_optional_bool(&mut r)?);
         // NoSendChange
         let no_send_change_data = read_optional_bytes_varint(&mut r)?;
         let no_send_change = if let Some(data) = no_send_change_data {
@@ -241,7 +242,7 @@ pub fn deserialize_create_action_args(data: &[u8]) -> Result<CreateActionArgs, W
             }
             txids
         };
-        let randomize_outputs = read_optional_bool(&mut r)?;
+        let randomize_outputs = BooleanDefaultTrue(read_optional_bool(&mut r)?);
         Some(CreateActionOptions {
             sign_and_process,
             accept_delayed_broadcast,

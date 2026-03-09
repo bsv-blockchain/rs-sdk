@@ -4,6 +4,7 @@ use super::create_action::{read_send_with_results, write_send_with_results};
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 use std::collections::HashMap;
 
 pub fn serialize_sign_action_args(args: &SignActionArgs) -> Result<Vec<u8>, WalletError> {
@@ -23,9 +24,9 @@ pub fn serialize_sign_action_args(args: &SignActionArgs) -> Result<Vec<u8>, Wall
         // Options
         if let Some(ref opts) = args.options {
             write_byte(w, 1)?;
-            write_optional_bool(w, opts.accept_delayed_broadcast)?;
-            write_optional_bool(w, opts.return_txid_only)?;
-            write_optional_bool(w, opts.no_send)?;
+            write_optional_bool(w, opts.accept_delayed_broadcast.0)?;
+            write_optional_bool(w, opts.return_txid_only.0)?;
+            write_optional_bool(w, opts.no_send.0)?;
             // SendWith
             if opts.send_with.is_empty() {
                 write_varint(w, NEGATIVE_ONE)?;
@@ -62,9 +63,9 @@ pub fn deserialize_sign_action_args(data: &[u8]) -> Result<SignActionArgs, Walle
     let reference = read_bytes(&mut r)?;
     let options_flag = read_byte(&mut r)?;
     let options = if options_flag == 1 {
-        let accept_delayed_broadcast = read_optional_bool(&mut r)?;
-        let return_txid_only = read_optional_bool(&mut r)?;
-        let no_send = read_optional_bool(&mut r)?;
+        let accept_delayed_broadcast = BooleanDefaultTrue(read_optional_bool(&mut r)?);
+        let return_txid_only = BooleanDefaultFalse(read_optional_bool(&mut r)?);
+        let no_send = BooleanDefaultFalse(read_optional_bool(&mut r)?);
         let send_count = read_varint(&mut r)?;
         let send_with = if send_count == NEGATIVE_ONE {
             Vec::new()

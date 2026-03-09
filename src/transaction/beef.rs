@@ -145,6 +145,124 @@ impl Beef {
         Ok(to_hex(&buf))
     }
 
+    /// Extract the subject transaction from this BEEF, consuming it.
+    ///
+    /// If `atomic_txid` is set, returns the transaction matching that txid.
+    /// Otherwise, returns the last transaction (the subject).
+    /// Before returning, links source transactions from the BEEF for each input.
+    pub fn into_transaction(self) -> Result<crate::transaction::transaction::Transaction, TransactionError> {
+        let subject_idx = if let Some(ref atomic_txid) = self.atomic_txid {
+            self.txs
+                .iter()
+                .position(|btx| btx.txid == *atomic_txid)
+                .ok_or_else(|| {
+                    TransactionError::BeefError(format!(
+                        "atomic txid {} not found in BEEF",
+                        atomic_txid
+                    ))
+                })?
+        } else {
+            if self.txs.is_empty() {
+                return Err(TransactionError::BeefError(
+                    "BEEF contains no transactions".into(),
+                ));
+            }
+            self.txs.len() - 1
+        };
+
+        let mut tx = self.txs[subject_idx]
+            .tx
+            .clone()
+            .ok_or_else(|| TransactionError::BeefError("subject tx is txid-only".into()))?;
+
+        // Link source transactions: for each input, find source tx in BEEF
+        for input in &mut tx.inputs {
+            if let Some(ref source_txid) = input.source_txid {
+                if input.source_transaction.is_none() {
+                    for btx in &self.txs {
+                        if btx.txid == *source_txid {
+                            if let Some(ref source_tx) = btx.tx {
+                                input.source_transaction = Some(Box::new(source_tx.clone()));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(tx)
+    }
+
+    /// Topologically sort transactions by dependency order.
+    ///
+    /// Uses Kahn's algorithm. Proven transactions (with bump_index) and those
+    /// with no in-BEEF dependencies come first; dependent transactions follow.
+    pub fn sort_txs(&mut self) {
+        use std::collections::{HashMap, VecDeque};
+
+        let n = self.txs.len();
+        if n <= 1 {
+            return;
+        }
+
+        // Build txid -> index map
+        let txid_to_idx: HashMap<&str, usize> = self
+            .txs
+            .iter()
+            .enumerate()
+            .map(|(i, btx)| (btx.txid.as_str(), i))
+            .collect();
+
+        // Compute in-degree for each tx (how many of its input txids are in this BEEF)
+        let mut in_degree = vec![0usize; n];
+        // adjacency: txid_idx -> list of dependent tx indices
+        let mut dependents: Vec<Vec<usize>> = vec![Vec::new(); n];
+
+        for (i, btx) in self.txs.iter().enumerate() {
+            for input_txid in &btx.input_txids {
+                if let Some(&dep_idx) = txid_to_idx.get(input_txid.as_str()) {
+                    if dep_idx != i {
+                        in_degree[i] += 1;
+                        dependents[dep_idx].push(i);
+                    }
+                }
+            }
+        }
+
+        // Start with nodes having in-degree 0
+        let mut queue: VecDeque<usize> = VecDeque::new();
+        for i in 0..n {
+            if in_degree[i] == 0 {
+                queue.push_back(i);
+            }
+        }
+
+        let mut sorted_indices: Vec<usize> = Vec::with_capacity(n);
+        while let Some(idx) = queue.pop_front() {
+            sorted_indices.push(idx);
+            for &dep in &dependents[idx] {
+                in_degree[dep] -= 1;
+                if in_degree[dep] == 0 {
+                    queue.push_back(dep);
+                }
+            }
+        }
+
+        // If there are remaining nodes (cycle), append them
+        if sorted_indices.len() < n {
+            for i in 0..n {
+                if !sorted_indices.contains(&i) {
+                    sorted_indices.push(i);
+                }
+            }
+        }
+
+        // Reorder self.txs according to sorted_indices
+        let old_txs = std::mem::take(&mut self.txs);
+        self.txs = sorted_indices.into_iter().map(|i| old_txs[i].clone()).collect();
+    }
+
     /// Find a `BeefTx` by txid.
     pub fn find_txid(&self, txid: &str) -> Option<&BeefTx> {
         self.txs.iter().find(|btx| btx.txid == txid)
@@ -620,6 +738,51 @@ mod tests {
                 .is_none(),
             "should not find nonexistent txid"
         );
+    }
+
+    #[test]
+    fn test_into_transaction_returns_last_tx() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+        let expected_txid = beef.txs.last().unwrap().txid.clone();
+        let tx = beef.into_transaction().expect("into_transaction");
+        assert_eq!(tx.id().unwrap(), expected_txid, "should return last (subject) tx");
+    }
+
+    #[test]
+    fn test_from_beef_hex() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+        let expected_txid = beef.txs.last().unwrap().txid.clone();
+        let tx = crate::transaction::transaction::Transaction::from_beef(&vectors[0].hex).expect("from_beef");
+        assert_eq!(tx.id().unwrap(), expected_txid, "from_beef should return subject tx");
+    }
+
+    #[test]
+    fn test_sort_txs_proven_before_unproven() {
+        let vectors = load_test_vectors();
+        let mut beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+        beef.sort_txs();
+        // After sorting, proven txs (with bump_index) should come before unproven
+        let mut seen_unproven = false;
+        for btx in &beef.txs {
+            if btx.bump_index.is_some() {
+                assert!(!seen_unproven, "proven tx should not come after unproven");
+            } else {
+                seen_unproven = true;
+            }
+        }
+    }
+
+    #[test]
+    fn test_sort_txs_idempotent() {
+        let vectors = load_test_vectors();
+        let mut beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+        beef.sort_txs();
+        let first_order: Vec<String> = beef.txs.iter().map(|t| t.txid.clone()).collect();
+        beef.sort_txs();
+        let second_order: Vec<String> = beef.txs.iter().map(|t| t.txid.clone()).collect();
+        assert_eq!(first_order, second_order, "sort_txs should be idempotent");
     }
 
     #[test]

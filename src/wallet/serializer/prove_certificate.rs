@@ -4,6 +4,7 @@ use super::acquire_certificate::{base64_decode, base64_encode};
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::BooleanDefaultFalse;
 use std::collections::HashMap;
 
 pub fn serialize_prove_certificate_args(
@@ -50,7 +51,7 @@ pub fn serialize_prove_certificate_args(
         // Privileged params
         write_privileged_params(
             w,
-            args.privileged,
+            args.privileged.0,
             &args.privileged_reason.clone().unwrap_or_default(),
         )
     })
@@ -121,7 +122,7 @@ pub fn deserialize_prove_certificate_args(
         },
         fields_to_reveal,
         verifier,
-        privileged,
+        privileged: BooleanDefaultFalse(privileged),
         privileged_reason: if privileged_reason.is_empty() {
             None
         } else {

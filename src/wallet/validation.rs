@@ -6,6 +6,7 @@
 
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 
 // ---------------------------------------------------------------------------
 // Shared validation helpers
@@ -375,7 +376,7 @@ pub fn validate_acquire_certificate_args(args: &AcquireCertificateArgs) -> Resul
 /// Validate ListCertificatesArgs.
 pub fn validate_list_certificates_args(args: &ListCertificatesArgs) -> Result<(), WalletError> {
     validate_optional_limit(args.limit)?;
-    validate_optional_privileged_reason(args.privileged, &args.privileged_reason)?;
+    validate_optional_privileged_reason(args.privileged.0, &args.privileged_reason)?;
     Ok(())
 }
 
@@ -387,7 +388,7 @@ pub fn validate_prove_certificate_args(args: &ProveCertificateArgs) -> Result<()
     for field in &args.fields_to_reveal {
         validate_string_length(field, "fields_to_reveal entry", 1, 50)?;
     }
-    validate_optional_privileged_reason(args.privileged, &args.privileged_reason)?;
+    validate_optional_privileged_reason(args.privileged.0, &args.privileged_reason)?;
     Ok(())
 }
 
@@ -455,7 +456,9 @@ mod tests {
     use std::collections::HashMap;
 
     use crate::primitives::private_key::PrivateKey;
-    use crate::wallet::types::{Counterparty, CounterpartyType, Protocol};
+    use crate::wallet::types::{
+        BooleanDefaultFalse, BooleanDefaultTrue, Counterparty, CounterpartyType, Protocol,
+    };
 
     fn test_pubkey() -> crate::primitives::public_key::PublicKey {
         let pk = PrivateKey::from_bytes(&{
@@ -642,15 +645,15 @@ mod tests {
         let args = ListActionsArgs {
             labels: vec!["test".to_string()],
             label_query_mode: None,
-            include_labels: None,
-            include_inputs: None,
-            include_input_source_locking_scripts: None,
-            include_input_unlocking_scripts: None,
-            include_outputs: None,
-            include_output_locking_scripts: None,
+            include_labels: BooleanDefaultFalse(None),
+            include_inputs: BooleanDefaultFalse(None),
+            include_input_source_locking_scripts: BooleanDefaultFalse(None),
+            include_input_unlocking_scripts: BooleanDefaultFalse(None),
+            include_outputs: BooleanDefaultFalse(None),
+            include_output_locking_scripts: BooleanDefaultFalse(None),
             limit: Some(10),
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_actions_args(&args).is_ok());
     }
@@ -660,15 +663,15 @@ mod tests {
         let args = ListActionsArgs {
             labels: vec![],
             label_query_mode: None,
-            include_labels: None,
-            include_inputs: None,
-            include_input_source_locking_scripts: None,
-            include_input_unlocking_scripts: None,
-            include_outputs: None,
-            include_output_locking_scripts: None,
+            include_labels: BooleanDefaultFalse(None),
+            include_inputs: BooleanDefaultFalse(None),
+            include_input_source_locking_scripts: BooleanDefaultFalse(None),
+            include_input_unlocking_scripts: BooleanDefaultFalse(None),
+            include_outputs: BooleanDefaultFalse(None),
+            include_output_locking_scripts: BooleanDefaultFalse(None),
             limit: None,
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_actions_args(&args).is_err());
     }
@@ -678,15 +681,15 @@ mod tests {
         let args = ListActionsArgs {
             labels: vec!["test".to_string()],
             label_query_mode: None,
-            include_labels: None,
-            include_inputs: None,
-            include_input_source_locking_scripts: None,
-            include_input_unlocking_scripts: None,
-            include_outputs: None,
-            include_output_locking_scripts: None,
+            include_labels: BooleanDefaultFalse(None),
+            include_inputs: BooleanDefaultFalse(None),
+            include_input_source_locking_scripts: BooleanDefaultFalse(None),
+            include_input_unlocking_scripts: BooleanDefaultFalse(None),
+            include_outputs: BooleanDefaultFalse(None),
+            include_output_locking_scripts: BooleanDefaultFalse(None),
             limit: Some(10001),
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_actions_args(&args).is_err());
     }
@@ -696,15 +699,15 @@ mod tests {
         let args = ListActionsArgs {
             labels: vec!["test".to_string()],
             label_query_mode: None,
-            include_labels: None,
-            include_inputs: None,
-            include_input_source_locking_scripts: None,
-            include_input_unlocking_scripts: None,
-            include_outputs: None,
-            include_output_locking_scripts: None,
+            include_labels: BooleanDefaultFalse(None),
+            include_inputs: BooleanDefaultFalse(None),
+            include_input_source_locking_scripts: BooleanDefaultFalse(None),
+            include_input_unlocking_scripts: BooleanDefaultFalse(None),
+            include_outputs: BooleanDefaultFalse(None),
+            include_output_locking_scripts: BooleanDefaultFalse(None),
             limit: Some(0),
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_actions_args(&args).is_err());
     }
@@ -717,7 +720,7 @@ mod tests {
             tx: vec![1, 2, 3],
             description: "Valid description text".to_string(),
             labels: vec![],
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
             outputs: vec![InternalizeOutput {
                 output_index: 0,
                 protocol: InternalizeProtocol::BasketInsertion,
@@ -738,7 +741,7 @@ mod tests {
             tx: vec![],
             description: "Valid description text".to_string(),
             labels: vec![],
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
             outputs: vec![InternalizeOutput {
                 output_index: 0,
                 protocol: InternalizeProtocol::BasketInsertion,
@@ -759,7 +762,7 @@ mod tests {
             tx: vec![1, 2, 3],
             description: "Valid description text".to_string(),
             labels: vec![],
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
             outputs: vec![],
         };
         assert!(validate_internalize_action_args(&args).is_err());
@@ -771,7 +774,7 @@ mod tests {
             tx: vec![1, 2, 3],
             description: "Valid description text".to_string(),
             labels: vec![],
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
             outputs: vec![InternalizeOutput {
                 output_index: 0,
                 protocol: InternalizeProtocol::WalletPayment,
@@ -791,12 +794,12 @@ mod tests {
             tags: vec![],
             tag_query_mode: None,
             include: None,
-            include_custom_instructions: None,
-            include_tags: None,
-            include_labels: None,
+            include_custom_instructions: BooleanDefaultFalse(None),
+            include_tags: BooleanDefaultFalse(None),
+            include_labels: BooleanDefaultFalse(None),
             limit: Some(10),
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_outputs_args(&args).is_ok());
     }
@@ -808,12 +811,12 @@ mod tests {
             tags: vec![],
             tag_query_mode: None,
             include: None,
-            include_custom_instructions: None,
-            include_tags: None,
-            include_labels: None,
+            include_custom_instructions: BooleanDefaultFalse(None),
+            include_tags: BooleanDefaultFalse(None),
+            include_labels: BooleanDefaultFalse(None),
             limit: None,
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_outputs_args(&args).is_err());
     }
@@ -825,12 +828,12 @@ mod tests {
             tags: vec![],
             tag_query_mode: None,
             include: None,
-            include_custom_instructions: None,
-            include_tags: None,
-            include_labels: None,
+            include_custom_instructions: BooleanDefaultFalse(None),
+            include_tags: BooleanDefaultFalse(None),
+            include_labels: BooleanDefaultFalse(None),
             limit: Some(10001),
             offset: None,
-            seek_permission: None,
+            seek_permission: BooleanDefaultTrue(None),
         };
         assert!(validate_list_outputs_args(&args).is_err());
     }
@@ -1247,7 +1250,7 @@ mod tests {
             types: vec![],
             limit: Some(10),
             offset: None,
-            privileged: None,
+            privileged: BooleanDefaultFalse(None),
             privileged_reason: None,
         };
         assert!(validate_list_certificates_args(&args).is_ok());
@@ -1260,7 +1263,7 @@ mod tests {
             types: vec![],
             limit: Some(10001),
             offset: None,
-            privileged: None,
+            privileged: BooleanDefaultFalse(None),
             privileged_reason: None,
         };
         assert!(validate_list_certificates_args(&args).is_err());
@@ -1282,7 +1285,7 @@ mod tests {
             },
             fields_to_reveal: vec!["name".to_string()],
             verifier: test_pubkey(),
-            privileged: None,
+            privileged: BooleanDefaultFalse(None),
             privileged_reason: None,
         };
         assert!(validate_prove_certificate_args(&args).is_ok());
@@ -1302,7 +1305,7 @@ mod tests {
             },
             fields_to_reveal: vec![],
             verifier: test_pubkey(),
-            privileged: None,
+            privileged: BooleanDefaultFalse(None),
             privileged_reason: None,
         };
         assert!(validate_prove_certificate_args(&args).is_err());

@@ -85,6 +85,15 @@ impl Transaction {
         Self::from_binary(&mut cursor)
     }
 
+    /// Parse a transaction from a BEEF hex string, returning the subject transaction.
+    ///
+    /// Decodes the hex to bytes, parses the BEEF structure, and extracts the
+    /// subject transaction (the last tx, or the atomic txid target).
+    pub fn from_beef(beef_hex: &str) -> Result<Self, TransactionError> {
+        let beef = crate::transaction::beef::Beef::from_hex(beef_hex)?;
+        beef.into_transaction()
+    }
+
     /// Serialize a transaction to binary wire format.
     pub fn to_binary(&self, writer: &mut impl Write) -> Result<(), TransactionError> {
         write_u32_le(writer, self.version)?;

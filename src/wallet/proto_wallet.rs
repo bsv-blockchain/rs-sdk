@@ -27,7 +27,9 @@ use crate::wallet::interfaces::{
     VerifyHmacArgs, VerifyHmacResult, VerifySignatureArgs, VerifySignatureResult, WalletInterface,
 };
 use crate::wallet::key_deriver::KeyDeriver;
-use crate::wallet::types::{Counterparty, CounterpartyType, Protocol};
+use crate::wallet::types::{
+    BooleanDefaultFalse, BooleanDefaultTrue, Counterparty, CounterpartyType, Protocol,
+};
 
 /// Result of revealing counterparty key linkage.
 pub struct RevealCounterpartyResult {
@@ -1281,12 +1283,12 @@ mod tests {
                 tags: vec![],
                 tag_query_mode: None,
                 include: None,
-                include_custom_instructions: None,
-                include_tags: None,
-                include_labels: None,
+                include_custom_instructions: BooleanDefaultFalse(None),
+                include_tags: BooleanDefaultFalse(None),
+                include_labels: BooleanDefaultFalse(None),
                 limit: Some(10),
                 offset: None,
-                seek_permission: None,
+                seek_permission: BooleanDefaultTrue(None),
             },
             None,
         )

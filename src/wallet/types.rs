@@ -50,10 +50,100 @@ pub type Base64String = String;
 pub type HexString = String;
 
 /// Boolean that defaults to true when None.
-pub type BooleanDefaultTrue = Option<bool>;
+///
+/// A newtype around `Option<bool>` that dereferences to `true` when the inner
+/// value is `None` or `Some(true)`. Serializes transparently as `Option<bool>`
+/// on the wire and in JSON.
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "network", serde(transparent))]
+pub struct BooleanDefaultTrue(pub Option<bool>);
+
+impl Default for BooleanDefaultTrue {
+    fn default() -> Self {
+        BooleanDefaultTrue(Some(true))
+    }
+}
+
+impl std::ops::Deref for BooleanDefaultTrue {
+    type Target = bool;
+    fn deref(&self) -> &bool {
+        static TRUE: bool = true;
+        static FALSE: bool = false;
+        match self.0 {
+            Some(true) | None => &TRUE,
+            Some(false) => &FALSE,
+        }
+    }
+}
+
+impl From<BooleanDefaultTrue> for Option<bool> {
+    fn from(v: BooleanDefaultTrue) -> Self {
+        v.0
+    }
+}
+
+impl From<Option<bool>> for BooleanDefaultTrue {
+    fn from(v: Option<bool>) -> Self {
+        BooleanDefaultTrue(v)
+    }
+}
+
+impl BooleanDefaultTrue {
+    /// Returns true if the inner value is None.
+    /// Used by serde skip_serializing_if.
+    pub fn is_none(&self) -> bool {
+        self.0.is_none()
+    }
+}
 
 /// Boolean that defaults to false when None.
-pub type BooleanDefaultFalse = Option<bool>;
+///
+/// A newtype around `Option<bool>` that dereferences to `false` when the inner
+/// value is `None` or `Some(false)`. Serializes transparently as `Option<bool>`
+/// on the wire and in JSON.
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "network", serde(transparent))]
+pub struct BooleanDefaultFalse(pub Option<bool>);
+
+impl Default for BooleanDefaultFalse {
+    fn default() -> Self {
+        BooleanDefaultFalse(Some(false))
+    }
+}
+
+impl std::ops::Deref for BooleanDefaultFalse {
+    type Target = bool;
+    fn deref(&self) -> &bool {
+        static TRUE: bool = true;
+        static FALSE: bool = false;
+        match self.0 {
+            Some(true) => &TRUE,
+            Some(false) | None => &FALSE,
+        }
+    }
+}
+
+impl From<BooleanDefaultFalse> for Option<bool> {
+    fn from(v: BooleanDefaultFalse) -> Self {
+        v.0
+    }
+}
+
+impl From<Option<bool>> for BooleanDefaultFalse {
+    fn from(v: Option<bool>) -> Self {
+        BooleanDefaultFalse(v)
+    }
+}
+
+impl BooleanDefaultFalse {
+    /// Returns true if the inner value is None.
+    /// Used by serde skip_serializing_if.
+    pub fn is_none(&self) -> bool {
+        self.0.is_none()
+    }
+}
 
 /// Positive integer defaulting to 10, max 10000.
 pub type PositiveIntegerDefault10Max10000 = Option<u32>;

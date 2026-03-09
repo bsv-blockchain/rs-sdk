@@ -15,6 +15,7 @@ use crate::primitives::public_key::PublicKey;
 use crate::wallet::interfaces::{
     CertificateType, ListCertificatesArgs, ProveCertificateArgs, WalletInterface,
 };
+use crate::wallet::types::BooleanDefaultFalse;
 
 // ---------------------------------------------------------------------------
 // validate_certificates
@@ -108,7 +109,7 @@ pub async fn get_verifiable_certificates<W: WalletInterface>(
                 types: cert_types,
                 limit: Some(100),
                 offset: Some(0),
-                privileged: None,
+                privileged: BooleanDefaultFalse(None),
                 privileged_reason: None,
             },
             None,
@@ -134,7 +135,7 @@ pub async fn get_verifiable_certificates<W: WalletInterface>(
                     certificate: cert.clone(),
                     fields_to_reveal,
                     verifier: verifier_identity_key.clone(),
-                    privileged: None,
+                    privileged: BooleanDefaultFalse(None),
                     privileged_reason: None,
                 },
                 None,

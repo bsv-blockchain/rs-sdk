@@ -3,6 +3,7 @@
 use super::*;
 use crate::wallet::error::WalletError;
 use crate::wallet::interfaces::*;
+use crate::wallet::types::BooleanDefaultTrue;
 
 const PROTOCOL_WALLET_PAYMENT: u8 = 1;
 const PROTOCOL_BASKET_INSERTION: u8 = 2;
@@ -63,7 +64,7 @@ pub fn serialize_internalize_action_args(
             },
         )?;
         write_string(w, &args.description)?;
-        write_optional_bool(w, args.seek_permission)
+        write_optional_bool(w, args.seek_permission.0)
     })
 }
 
@@ -128,7 +129,7 @@ pub fn deserialize_internalize_action_args(
     }
     let labels = read_string_slice(&mut r)?.unwrap_or_default();
     let description = read_string(&mut r)?;
-    let seek_permission = read_optional_bool(&mut r)?;
+    let seek_permission = BooleanDefaultTrue(read_optional_bool(&mut r)?);
     Ok(InternalizeActionArgs {
         tx,
         description,
