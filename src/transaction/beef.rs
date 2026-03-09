@@ -1,7 +1,6 @@
 //! BEEF format (BRC-62/95/96) serialization and deserialization.
 //!
 //! Supports V1, V2, and Atomic BEEF variants for SPV proof packaging.
-//! Stub for Task 1 -- full implementation in Task 2.
 
 use std::io::{Cursor, Read, Write};
 
@@ -146,6 +145,185 @@ impl Beef {
         Ok(to_hex(&buf))
     }
 
+    /// Find a `BeefTx` by txid.
+    pub fn find_txid(&self, txid: &str) -> Option<&BeefTx> {
+        self.txs.iter().find(|btx| btx.txid == txid)
+    }
+
+    /// Merge a MerklePath (BUMP) that is assumed to be fully valid.
+    ///
+    /// If an identical bump (same block height, same computed root) already exists,
+    /// combines them. Otherwise appends a new bump.
+    ///
+    /// After merging, scans transactions to assign bump indices to any that match
+    /// a leaf in the merged bump.
+    ///
+    /// Returns the index of the merged bump.
+    pub fn merge_bump(&mut self, bump: &MerklePath) -> Result<usize, TransactionError> {
+        let mut bump_index: Option<usize> = None;
+
+        for (i, existing) in self.bumps.iter_mut().enumerate() {
+            if existing.block_height == bump.block_height {
+                let root_a = existing.compute_root(None)?;
+                let root_b = bump.compute_root(None)?;
+                if root_a == root_b {
+                    existing.combine(bump)?;
+                    bump_index = Some(i);
+                    break;
+                }
+            }
+        }
+
+        if bump_index.is_none() {
+            bump_index = Some(self.bumps.len());
+            self.bumps.push(bump.clone());
+        }
+
+        let bi = bump_index.expect("bump_index was just set");
+
+        // Check if any existing transactions are proven by this bump
+        let bump_ref = &self.bumps[bi];
+        let leaf_txids: Vec<String> = bump_ref.path[0]
+            .iter()
+            .filter_map(|leaf| leaf.hash.clone())
+            .collect();
+
+        for btx in &mut self.txs {
+            if btx.bump_index.is_none() && leaf_txids.contains(&btx.txid) {
+                btx.bump_index = Some(bi);
+            }
+        }
+
+        Ok(bi)
+    }
+
+    /// Remove an existing transaction with the given txid.
+    fn remove_existing_txid(&mut self, txid: &str) {
+        if let Some(pos) = self.txs.iter().position(|btx| btx.txid == txid) {
+            self.txs.remove(pos);
+        }
+    }
+
+    /// Merge a raw serialized transaction into this BEEF.
+    ///
+    /// Replaces any existing transaction with the same txid.
+    ///
+    /// If `bump_index` is provided, it must be a valid index into `self.bumps`.
+    pub fn merge_raw_tx(
+        &mut self,
+        raw_tx: &[u8],
+        bump_index: Option<usize>,
+    ) -> Result<BeefTx, TransactionError> {
+        let mut cursor = std::io::Cursor::new(raw_tx);
+        let tx = crate::transaction::transaction::Transaction::from_binary(&mut cursor)?;
+        let new_tx = BeefTx::from_tx(tx, bump_index)?;
+        self.remove_existing_txid(&new_tx.txid);
+        let txid = new_tx.txid.clone();
+        self.txs.push(new_tx);
+
+        // Try to find a bump for this transaction if none provided
+        if bump_index.is_none() {
+            self.try_to_validate_bump_index(&txid);
+        }
+
+        Ok(self.txs.last().cloned().expect("just pushed"))
+    }
+
+    /// Merge another Beef into this one.
+    ///
+    /// All BUMPs from `other` are merged first (deduplicating by block height + root),
+    /// then all transactions are merged (replacing any with matching txids).
+    pub fn merge_beef(&mut self, other: &Beef) -> Result<(), TransactionError> {
+        for bump in &other.bumps {
+            self.merge_bump(bump)?;
+        }
+
+        for btx in &other.txs {
+            if btx.is_txid_only() {
+                // Merge txid-only if we don't already have this txid
+                if self.find_txid(&btx.txid).is_none() {
+                    self.txs.push(BeefTx::from_txid(btx.txid.clone()));
+                }
+            } else if let Some(ref tx) = btx.tx {
+                // Re-derive the bump index in the context of our bumps
+                let new_bump_index = self.find_bump_index_for_txid(&btx.txid);
+                let new_btx = BeefTx::from_tx(tx.clone(), new_bump_index)?;
+                self.remove_existing_txid(&btx.txid);
+                let txid = new_btx.txid.clone();
+                self.txs.push(new_btx);
+                if new_bump_index.is_none() {
+                    self.try_to_validate_bump_index(&txid);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Merge a Beef from binary data into this one.
+    pub fn merge_beef_from_binary(&mut self, data: &[u8]) -> Result<(), TransactionError> {
+        let mut cursor = std::io::Cursor::new(data);
+        let other = Beef::from_binary(&mut cursor)?;
+        self.merge_beef(&other)
+    }
+
+    /// Serialize this Beef as Atomic BEEF (BRC-95) for a specific transaction.
+    ///
+    /// The target `txid` must exist in this Beef. After sorting by dependency order,
+    /// if the target transaction is not the last one, transactions after it are excluded.
+    ///
+    /// The output format is: `ATOMIC_BEEF(4 bytes) + txid(32 bytes LE) + BEEF binary`.
+    pub fn to_binary_atomic(&self, txid: &str) -> Result<Vec<u8>, TransactionError> {
+        // Verify the txid exists
+        if self.find_txid(txid).is_none() {
+            return Err(TransactionError::BeefError(format!(
+                "{} does not exist in this Beef",
+                txid
+            )));
+        }
+
+        // Clone and set up atomic txid
+        let mut atomic_beef = self.clone();
+        atomic_beef.atomic_txid = Some(txid.to_string());
+
+        // If the target tx is not the last one, remove transactions after it
+        if let Some(pos) = atomic_beef.txs.iter().position(|btx| btx.txid == txid) {
+            atomic_beef.txs.truncate(pos + 1);
+        }
+
+        let mut buf = Vec::new();
+        atomic_beef.to_binary(&mut buf)?;
+        Ok(buf)
+    }
+
+    /// Try to find a bump index for a txid by scanning all bumps.
+    fn try_to_validate_bump_index(&mut self, txid: &str) {
+        for (i, bump) in self.bumps.iter().enumerate() {
+            let found = bump.path[0].iter().any(|leaf| {
+                leaf.hash.as_deref() == Some(txid)
+            });
+            if found {
+                if let Some(btx) = self.txs.iter_mut().find(|btx| btx.txid == txid) {
+                    btx.bump_index = Some(i);
+                }
+                return;
+            }
+        }
+    }
+
+    /// Find the bump index for a txid, if any bump contains it.
+    fn find_bump_index_for_txid(&self, txid: &str) -> Option<usize> {
+        for (i, bump) in self.bumps.iter().enumerate() {
+            let found = bump.path[0].iter().any(|leaf| {
+                leaf.hash.as_deref() == Some(txid)
+            });
+            if found {
+                return Some(i);
+            }
+        }
+        None
+    }
+
     /// Link source transactions within this BEEF.
     ///
     /// For each transaction input, if its source_txid matches another transaction
@@ -262,5 +440,202 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn test_merge_beef_combines_bumps_and_txs() {
+        let vectors = load_test_vectors();
+        // Parse two separate BEEFs and merge them
+        let beef_a = Beef::from_hex(&vectors[0].hex).expect("parse beef_a");
+        let beef_b = Beef::from_hex(&vectors[1].hex).expect("parse beef_b");
+
+        let mut merged = Beef::new(BEEF_V2);
+        merged.merge_beef(&beef_a).expect("merge beef_a");
+        merged.merge_beef(&beef_b).expect("merge beef_b");
+
+        // Merged should contain txs from both
+        assert!(
+            merged.txs.len() >= beef_a.txs.len(),
+            "merged should have at least as many txs as beef_a"
+        );
+        assert!(
+            merged.bumps.len() >= 1,
+            "merged should have at least one bump"
+        );
+
+        // All txids from both should be present
+        for btx in &beef_a.txs {
+            assert!(
+                merged.find_txid(&btx.txid).is_some(),
+                "merged should contain txid {} from beef_a",
+                btx.txid
+            );
+        }
+        for btx in &beef_b.txs {
+            assert!(
+                merged.find_txid(&btx.txid).is_some(),
+                "merged should contain txid {} from beef_b",
+                btx.txid
+            );
+        }
+    }
+
+    #[test]
+    fn test_merge_beef_deduplicates_same_txid() {
+        let vectors = load_test_vectors();
+        let beef_a = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        let mut merged = Beef::new(BEEF_V2);
+        merged.merge_beef(&beef_a).expect("merge first");
+        let count_after_first = merged.txs.len();
+
+        // Merge the same beef again
+        merged.merge_beef(&beef_a).expect("merge second");
+        assert_eq!(
+            merged.txs.len(),
+            count_after_first,
+            "merging same beef twice should not duplicate txs"
+        );
+    }
+
+    #[test]
+    fn test_merge_beef_from_binary() {
+        let vectors = load_test_vectors();
+        let beef_a = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+        let binary = crate::primitives::utils::from_hex(&vectors[0].hex).expect("hex decode");
+
+        let mut merged = Beef::new(BEEF_V2);
+        merged.merge_beef_from_binary(&binary).expect("merge from binary");
+
+        assert_eq!(merged.txs.len(), beef_a.txs.len());
+        assert_eq!(merged.bumps.len(), beef_a.bumps.len());
+    }
+
+    #[test]
+    fn test_merge_raw_tx() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        // Extract the raw tx bytes from the first transaction
+        if let Some(ref tx) = beef.txs[0].tx {
+            let mut raw_tx_buf = Vec::new();
+            tx.to_binary(&mut raw_tx_buf).expect("serialize tx");
+
+            let mut new_beef = Beef::new(BEEF_V2);
+            let result = new_beef.merge_raw_tx(&raw_tx_buf, None).expect("merge raw tx");
+            assert_eq!(result.txid, beef.txs[0].txid);
+            assert_eq!(new_beef.txs.len(), 1);
+        }
+    }
+
+    #[test]
+    fn test_merge_raw_tx_replaces_existing() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        if let Some(ref tx) = beef.txs[0].tx {
+            let mut raw_tx_buf = Vec::new();
+            tx.to_binary(&mut raw_tx_buf).expect("serialize tx");
+
+            let mut new_beef = Beef::new(BEEF_V2);
+            new_beef
+                .merge_raw_tx(&raw_tx_buf, None)
+                .expect("merge first");
+            new_beef
+                .merge_raw_tx(&raw_tx_buf, None)
+                .expect("merge second");
+
+            assert_eq!(
+                new_beef.txs.len(),
+                1,
+                "merging same raw tx twice should replace, not duplicate"
+            );
+        }
+    }
+
+    #[test]
+    fn test_to_binary_atomic() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        if let Some(ref expected_txid) = vectors[0].txid {
+            let atomic = beef
+                .to_binary_atomic(expected_txid)
+                .expect("to_binary_atomic");
+
+            // Should start with ATOMIC_BEEF prefix
+            assert!(atomic.len() > 36, "atomic output too short");
+            let prefix = u32::from_le_bytes([atomic[0], atomic[1], atomic[2], atomic[3]]);
+            assert_eq!(prefix, ATOMIC_BEEF, "should start with ATOMIC_BEEF prefix");
+
+            // Should contain the txid (reversed) at bytes 4..36
+            let mut txid_bytes =
+                crate::primitives::utils::from_hex(expected_txid).expect("hex decode txid");
+            txid_bytes.reverse(); // to LE wire format
+            assert_eq!(
+                &atomic[4..36],
+                &txid_bytes[..],
+                "atomic should contain txid in LE"
+            );
+
+            // Round-trip: parse the atomic BEEF back
+            let mut cursor = Cursor::new(&atomic);
+            let parsed = Beef::from_binary(&mut cursor).expect("parse atomic beef");
+            assert_eq!(
+                parsed.atomic_txid.as_deref(),
+                Some(expected_txid.as_str()),
+                "parsed atomic txid should match"
+            );
+            assert_eq!(
+                parsed.txs.len(),
+                beef.txs.len(),
+                "parsed atomic should have same tx count"
+            );
+        }
+    }
+
+    #[test]
+    fn test_to_binary_atomic_nonexistent_txid() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        let result = beef.to_binary_atomic("0000000000000000000000000000000000000000000000000000000000000000");
+        assert!(result.is_err(), "should error for nonexistent txid");
+    }
+
+    #[test]
+    fn test_find_txid() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        if let Some(ref expected_txid) = vectors[0].txid {
+            assert!(
+                beef.find_txid(expected_txid).is_some(),
+                "should find existing txid"
+            );
+        }
+
+        assert!(
+            beef.find_txid("0000000000000000000000000000000000000000000000000000000000000000")
+                .is_none(),
+            "should not find nonexistent txid"
+        );
+    }
+
+    #[test]
+    fn test_merge_bump() {
+        let vectors = load_test_vectors();
+        let beef = Beef::from_hex(&vectors[0].hex).expect("parse beef");
+
+        let mut new_beef = Beef::new(BEEF_V2);
+        // Merge the first bump
+        let idx = new_beef.merge_bump(&beef.bumps[0]).expect("merge bump");
+        assert_eq!(idx, 0, "first bump should be at index 0");
+        assert_eq!(new_beef.bumps.len(), 1);
+
+        // Merging same bump again should combine, not add
+        let idx2 = new_beef.merge_bump(&beef.bumps[0]).expect("merge bump again");
+        assert_eq!(idx2, 0, "same bump should merge to index 0");
+        assert_eq!(new_beef.bumps.len(), 1, "should still be 1 bump after re-merge");
     }
 }
