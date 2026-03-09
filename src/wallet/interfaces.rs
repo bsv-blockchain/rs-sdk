@@ -552,6 +552,94 @@ impl<'de> serde::Deserialize<'de> for SerialNumber {
     }
 }
 
+impl SerialNumber {
+    /// Parse a SerialNumber from a base64 or hex string.
+    ///
+    /// Accepts:
+    /// - 44-character base64 string (with optional padding, decodes to 32 bytes)
+    /// - 64-character hex string (decodes to 32 bytes)
+    ///
+    /// Returns an error for other formats or if the decoded length is not 32 bytes.
+    pub fn from_string(s: &str) -> Result<Self, WalletError> {
+        let bytes = if s.len() == 44 || (!s.is_empty() && s.ends_with('=')) {
+            // Base64 format (32 bytes -> 44 base64 chars with padding)
+            Self::base64_decode_sn(s)?
+        } else if s.len() == 64 && s.chars().all(|c| c.is_ascii_hexdigit()) {
+            // Hex format (32 bytes -> 64 hex chars)
+            crate::primitives::utils::from_hex(s)
+                .map_err(|e| WalletError::InvalidParameter(format!("hex: {}", e)))?
+        } else {
+            return Err(WalletError::InvalidParameter(format!(
+                "SerialNumber string must be 44 (base64) or 64 (hex) chars, got {}",
+                s.len()
+            )));
+        };
+        if bytes.len() != 32 {
+            return Err(WalletError::InvalidParameter(
+                "SerialNumber must decode to 32 bytes".into(),
+            ));
+        }
+        let mut buf = [0u8; 32];
+        buf.copy_from_slice(&bytes);
+        Ok(SerialNumber(buf))
+    }
+
+    /// Inline base64 decoder for SerialNumber (self-contained, no cross-module dependency).
+    fn base64_decode_sn(s: &str) -> Result<Vec<u8>, WalletError> {
+        fn b64_val(c: u8) -> Result<u8, WalletError> {
+            match c {
+                b'A'..=b'Z' => Ok(c - b'A'),
+                b'a'..=b'z' => Ok(c - b'a' + 26),
+                b'0'..=b'9' => Ok(c - b'0' + 52),
+                b'+' => Ok(62),
+                b'/' => Ok(63),
+                _ => Err(WalletError::InvalidParameter(format!(
+                    "invalid base64 character: {}",
+                    c as char
+                ))),
+            }
+        }
+        let bytes = s.as_bytes();
+        let mut result = Vec::new();
+        let mut i = 0;
+        while i < bytes.len() {
+            if bytes[i] == b'=' {
+                break;
+            }
+            let a = b64_val(bytes[i])?;
+            let b = if i + 1 < bytes.len() && bytes[i + 1] != b'=' {
+                b64_val(bytes[i + 1])?
+            } else {
+                0
+            };
+            let c = if i + 2 < bytes.len() && bytes[i + 2] != b'=' {
+                b64_val(bytes[i + 2])?
+            } else {
+                0
+            };
+            let d = if i + 3 < bytes.len() && bytes[i + 3] != b'=' {
+                b64_val(bytes[i + 3])?
+            } else {
+                0
+            };
+            let n = (a as u32) << 18 | (b as u32) << 12 | (c as u32) << 6 | (d as u32);
+            result.push((n >> 16) as u8);
+            if i + 2 < bytes.len() && bytes[i + 2] != b'=' {
+                result.push((n >> 8) as u8);
+            }
+            if i + 3 < bytes.len() && bytes[i + 3] != b'=' {
+                result.push(n as u8);
+            }
+            i += 4;
+        }
+        Ok(result)
+    }
+
+    pub fn bytes(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
 /// A certificate in the wallet.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
@@ -663,7 +751,7 @@ pub struct CreateActionOutput {
 }
 
 /// Optional parameters for creating a new transaction.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "network", serde(rename_all = "camelCase"))]
 pub struct CreateActionOptions {
@@ -794,7 +882,7 @@ pub struct SignActionSpend {
 }
 
 /// Controls signing and broadcasting behavior.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "network", serde(rename_all = "camelCase"))]
 pub struct SignActionOptions {
@@ -1016,16 +1104,26 @@ pub struct BasketInsertion {
 }
 
 /// How to process a transaction output -- as payment or basket insertion.
+///
+/// An enum with two variants, encoding the protocol in the variant itself.
+/// This makes impossible states unrepresentable: a WalletPayment always has
+/// a Payment, and a BasketInsertion always has a BasketInsertion.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "network", serde(rename_all = "camelCase"))]
-pub struct InternalizeOutput {
-    pub output_index: u32,
-    pub protocol: InternalizeProtocol,
-    #[cfg_attr(feature = "network", serde(skip_serializing_if = "Option::is_none"))]
-    pub payment_remittance: Option<Payment>,
-    #[cfg_attr(feature = "network", serde(skip_serializing_if = "Option::is_none"))]
-    pub insertion_remittance: Option<BasketInsertion>,
+#[cfg_attr(feature = "network", serde(tag = "protocol", rename_all = "camelCase"))]
+pub enum InternalizeOutput {
+    #[cfg_attr(feature = "network", serde(rename = "wallet payment"))]
+    WalletPayment {
+        output_index: u32,
+        #[cfg_attr(feature = "network", serde(rename = "paymentRemittance"))]
+        payment: Payment,
+    },
+    #[cfg_attr(feature = "network", serde(rename = "basket insertion"))]
+    BasketInsertion {
+        output_index: u32,
+        #[cfg_attr(feature = "network", serde(rename = "insertionRemittance"))]
+        insertion: BasketInsertion,
+    },
 }
 
 /// Arguments for importing an external transaction into the wallet.
@@ -1856,4 +1954,47 @@ pub trait WalletInterface: Send + Sync {
     async fn get_network(&self, originator: Option<&str>) -> Result<GetNetworkResult, WalletError>;
 
     async fn get_version(&self, originator: Option<&str>) -> Result<GetVersionResult, WalletError>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_serial_number_from_string_hex_valid() {
+        let hex = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2";
+        let sn = SerialNumber::from_string(hex).unwrap();
+        assert_eq!(sn.0[0], 0xa1);
+        assert_eq!(sn.0[31], 0xb2);
+    }
+
+    #[test]
+    fn test_serial_number_from_string_base64_valid() {
+        // 32 bytes of zeros -> base64 is "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        let b64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        let sn = SerialNumber::from_string(b64).unwrap();
+        assert_eq!(sn.0, [0u8; 32]);
+    }
+
+    #[test]
+    fn test_serial_number_from_string_base64_nonzero() {
+        // All 0xFF bytes: base64 = "//////////////////////////////////////////8="
+        let b64 = "//////////////////////////////////////////8=";
+        let sn = SerialNumber::from_string(b64).unwrap();
+        assert_eq!(sn.0, [0xffu8; 32]);
+    }
+
+    #[test]
+    fn test_serial_number_from_string_invalid_length() {
+        assert!(SerialNumber::from_string("abc").is_err());
+        assert!(SerialNumber::from_string("").is_err());
+        assert!(SerialNumber::from_string("a1b2c3").is_err());
+    }
+
+    #[test]
+    fn test_serial_number_from_string_invalid_chars() {
+        // 64 chars but not valid hex
+        let bad_hex = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+        assert!(SerialNumber::from_string(bad_hex).is_err());
+    }
 }

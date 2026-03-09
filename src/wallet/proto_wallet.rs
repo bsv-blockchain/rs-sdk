@@ -27,9 +27,7 @@ use crate::wallet::interfaces::{
     VerifyHmacArgs, VerifyHmacResult, VerifySignatureArgs, VerifySignatureResult, WalletInterface,
 };
 use crate::wallet::key_deriver::KeyDeriver;
-use crate::wallet::types::{
-    BooleanDefaultFalse, BooleanDefaultTrue, Counterparty, CounterpartyType, Protocol,
-};
+use crate::wallet::types::{Counterparty, CounterpartyType, Protocol};
 
 /// Result of revealing counterparty key linkage.
 pub struct RevealCounterpartyResult {
@@ -766,6 +764,7 @@ fn current_utc_timestamp() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 
     fn test_protocol() -> Protocol {
         Protocol {

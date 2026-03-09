@@ -21,16 +21,18 @@ pub struct BeefParty {
 }
 
 impl BeefParty {
-    /// Create a new BeefParty with optional initial party identifiers.
-    pub fn new(parties: Option<Vec<String>>) -> Self {
+    /// Create a new BeefParty with initial party identifiers.
+    ///
+    /// Accepts any iterator of string-like items (e.g., `&["alice", "bob"]`,
+    /// `vec!["charlie".to_string()]`, or an empty `&[]`).
+    pub fn new(parties: impl IntoIterator<Item = impl AsRef<str>>) -> Self {
         let mut bp = BeefParty {
             beef: Beef::new(crate::transaction::beef::BEEF_V2),
             known_to: HashMap::new(),
         };
-        if let Some(parties) = parties {
-            for party in parties {
-                bp.known_to.insert(party, HashMap::new());
-            }
+        for party in parties {
+            bp.known_to
+                .insert(party.as_ref().to_string(), HashMap::new());
         }
         bp
     }
@@ -109,5 +111,32 @@ impl BeefParty {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_beef_party_new_with_str_slices() {
+        let bp = BeefParty::new(&["alice", "bob"]);
+        assert!(bp.is_party("alice"));
+        assert!(bp.is_party("bob"));
+        assert!(!bp.is_party("charlie"));
+    }
+
+    #[test]
+    fn test_beef_party_new_empty() {
+        let empty: &[&str] = &[];
+        let bp = BeefParty::new(empty);
+        assert!(bp.known_to.is_empty());
+    }
+
+    #[test]
+    fn test_beef_party_new_with_owned_strings() {
+        let bp = BeefParty::new(vec!["charlie".to_string()]);
+        assert!(bp.is_party("charlie"));
+        assert_eq!(bp.known_to.len(), 1);
     }
 }
