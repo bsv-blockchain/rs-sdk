@@ -12,7 +12,7 @@ use crate::services::ServicesError;
 use crate::wallet::interfaces::{
     CreateHmacArgs, DecryptArgs, EncryptArgs, ListOutputsArgs, OutputInclude,
 };
-use crate::wallet::types::{Counterparty, CounterpartyType};
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue, Counterparty, CounterpartyType};
 use crate::wallet::WalletInterface;
 
 /// ContactsManager manages contacts with an in-memory cache and wallet-backed
@@ -124,12 +124,12 @@ impl<W: WalletInterface> ContactsManager<W> {
                     tags: vec![tag_str],
                     tag_query_mode: None,
                     include: Some(OutputInclude::LockingScripts),
-                    include_custom_instructions: Some(true),
-                    include_tags: Some(false),
-                    include_labels: Some(false),
+                    include_custom_instructions: BooleanDefaultFalse(Some(true)),
+                    include_tags: BooleanDefaultFalse(Some(false)),
+                    include_labels: BooleanDefaultFalse(Some(false)),
                     limit: Some(10),
                     offset: None,
-                    seek_permission: Some(true),
+                    seek_permission: BooleanDefaultTrue(Some(true)),
                 },
                 self.originator.as_deref(),
             )
@@ -220,12 +220,12 @@ impl<W: WalletInterface> ContactsManager<W> {
                     tags: vec![],
                     tag_query_mode: None,
                     include: Some(OutputInclude::LockingScripts),
-                    include_custom_instructions: Some(true),
-                    include_tags: Some(false),
-                    include_labels: Some(false),
+                    include_custom_instructions: BooleanDefaultFalse(Some(true)),
+                    include_tags: BooleanDefaultFalse(Some(false)),
+                    include_labels: BooleanDefaultFalse(Some(false)),
                     limit: Some(1000),
                     offset: None,
-                    seek_permission: Some(true),
+                    seek_permission: BooleanDefaultTrue(Some(true)),
                 },
                 self.originator.as_deref(),
             )

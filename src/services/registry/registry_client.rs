@@ -23,6 +23,7 @@ use crate::wallet::interfaces::{
     CreateActionArgs, CreateActionInput, CreateActionOutput, GetPublicKeyArgs, ListOutputsArgs,
     OutputInclude,
 };
+use crate::wallet::types::{BooleanDefaultFalse, BooleanDefaultTrue};
 use crate::wallet::WalletInterface;
 
 /// RegistryClient manages on-chain registry definitions for three types:
@@ -241,12 +242,12 @@ impl<W: WalletInterface> RegistryClient<W> {
                     tags: vec![],
                     tag_query_mode: None,
                     include: Some(OutputInclude::EntireTransactions),
-                    include_custom_instructions: Some(false),
-                    include_tags: Some(false),
-                    include_labels: Some(false),
+                    include_custom_instructions: BooleanDefaultFalse(Some(false)),
+                    include_tags: BooleanDefaultFalse(Some(false)),
+                    include_labels: BooleanDefaultFalse(Some(false)),
                     limit: Some(1000),
                     offset: None,
-                    seek_permission: Some(true),
+                    seek_permission: BooleanDefaultTrue(Some(true)),
                 },
                 self.originator.as_deref(),
             )

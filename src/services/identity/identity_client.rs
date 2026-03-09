@@ -15,6 +15,7 @@ use crate::wallet::interfaces::{
     CertificateType, DiscoverByAttributesArgs, DiscoverByIdentityKeyArgs, IdentityCertificate,
     ProveCertificateArgs,
 };
+use crate::wallet::types::BooleanDefaultFalse;
 use crate::wallet::WalletInterface;
 
 /// IdentityClient resolves displayable identities from the overlay network
@@ -185,7 +186,7 @@ impl<W: WalletInterface> IdentityClient<W> {
                     certificate: certificate.clone(),
                     fields_to_reveal: fields_to_reveal.to_vec(),
                     verifier: anyone_public,
-                    privileged: None,
+                    privileged: BooleanDefaultFalse(None),
                     privileged_reason: None,
                 },
                 self.originator.as_deref(),
