@@ -30,7 +30,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Sign the message
-    let signature = wallet.create_signature_sync(message, &protocol, key_id, &counterparty)?;
+    let signature =
+        wallet.create_signature_sync(Some(message), None, &protocol, key_id, &counterparty)?;
     println!(
         "Signature: {}",
         signature
@@ -41,7 +42,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Verify the signature
     let valid = wallet.verify_signature_sync(
-        message,
+        Some(message),
+        None,
         &signature,
         &protocol,
         key_id,
@@ -54,7 +56,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Tamper with the message and verify again
     let tampered = b"Hello, BSV SDK?";
     let invalid = wallet.verify_signature_sync(
-        tampered,
+        Some(tampered),
+        None,
         &signature,
         &protocol,
         key_id,
