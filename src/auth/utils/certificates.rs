@@ -132,7 +132,7 @@ pub async fn get_verifiable_certificates<W: WalletInterface + ?Sized>(
         let prove_result = wallet
             .prove_certificate(
                 ProveCertificateArgs {
-                    certificate: cert.clone(),
+                    certificate: cert.clone().into(),
                     fields_to_reveal,
                     verifier: verifier_identity_key.clone(),
                     privileged: BooleanDefaultFalse(None),
@@ -373,7 +373,8 @@ mod tests {
             _originator: Option<&str>,
         ) -> Result<CreateSignatureResult, WalletError> {
             let signature = self.inner.create_signature_sync(
-                &args.data,
+                args.data.as_deref(),
+                args.hash_to_directly_sign.as_deref(),
                 &args.protocol_id,
                 &args.key_id,
                 &args.counterparty,
@@ -387,7 +388,8 @@ mod tests {
             _originator: Option<&str>,
         ) -> Result<VerifySignatureResult, WalletError> {
             let valid = self.inner.verify_signature_sync(
-                &args.data,
+                args.data.as_deref(),
+                args.hash_to_directly_verify.as_deref(),
                 &args.signature,
                 &args.protocol_id,
                 &args.key_id,
@@ -570,9 +572,9 @@ mod tests {
             VerifiableCertificate::new(master_cert.certificate.clone(), HashMap::new());
 
         // Create a requested set that does NOT include this cert type
-        let mut requested: RequestedCertificateSet = HashMap::new();
+        let mut requested = RequestedCertificateSet::default();
         let different_type_b64 = crate::auth::certificates::certificate::base64_encode(&[99u8; 32]);
-        requested.insert(different_type_b64, vec!["field".to_string()]);
+        requested.types.insert(different_type_b64, vec!["field".to_string()]);
 
         let anyone_wallet = TestWallet::new(
             PrivateKey::from_bytes(&{
