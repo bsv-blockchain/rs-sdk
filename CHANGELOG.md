@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2026-03-10
+
+### Fixed
+- **BRC-100 compliance** -- merged PR #5 (sirdeggen): align wallet interface with TS SDK and BRC-100 spec
+- **`verify_signature_sync` now properly handles `hash_to_directly_verify`** -- previously ignored the parameter and only used `data`
+- **`verify_signature` accepts `Option<&[u8]>` for both `data` and `hash_to_directly_verify`** -- callers must provide at least one
+- **`prove_certificate` serialization** -- updated to match TS SDK wire format
+- **`list_actions` serialization** -- added missing fields
+- **`create_signature` / `verify_signature` serialization** -- aligned with BRC-100 spec
+
 ## [0.1.6] - 2026-03-09
 
 ### Added
