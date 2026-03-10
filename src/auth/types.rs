@@ -56,8 +56,47 @@ pub enum MessageType {
 // RequestedCertificateSet
 // ---------------------------------------------------------------------------
 
-/// Maps certificate type (base64) to a list of field names to request.
-pub type RequestedCertificateSet = HashMap<String, Vec<String>>;
+/// A set of certificates being requested from a peer.
+///
+/// Matches the TS SDK's RequestedCertificateSet wire format:
+/// `{ certifiers: string[], types: { [certTypeBase64]: string[] } }`
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "network", derive(serde::Serialize, serde::Deserialize))]
+pub struct RequestedCertificateSet {
+    /// Certifier public keys whose certificates are accepted.
+    #[cfg_attr(feature = "network", serde(default))]
+    pub certifiers: Vec<String>,
+    /// Maps certificate type (base64) to the list of field names to request.
+    #[cfg_attr(feature = "network", serde(default))]
+    pub types: HashMap<String, Vec<String>>,
+}
+
+impl RequestedCertificateSet {
+    /// Returns true if no certificate types are requested.
+    pub fn is_empty(&self) -> bool {
+        self.types.is_empty()
+    }
+
+    /// Iterate over the requested certificate type keys.
+    pub fn keys(&self) -> impl Iterator<Item = &String> {
+        self.types.keys()
+    }
+
+    /// Check if a certificate type is in the requested set.
+    pub fn contains_key(&self, key: &str) -> bool {
+        self.types.contains_key(key)
+    }
+
+    /// Get the requested fields for a certificate type.
+    pub fn get(&self, key: &str) -> Option<&Vec<String>> {
+        self.types.get(key)
+    }
+
+    /// Insert a certificate type and its requested fields.
+    pub fn insert(&mut self, key: String, fields: Vec<String>) {
+        self.types.insert(key, fields);
+    }
+}
 
 // ---------------------------------------------------------------------------
 // AuthMessage

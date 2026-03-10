@@ -167,6 +167,7 @@ impl ProtoWallet {
 
         let sig = Signature::from_der(signature)?;
         let data_hash = sha256(data);
+
         // Use ecdsa_verify directly with the hash to match create_signature behavior.
         Ok(ecdsa_verify(&data_hash, &sig, derived_pub.point()))
     }

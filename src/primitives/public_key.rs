@@ -161,6 +161,7 @@ impl PublicKey {
         let base_point = BasePoint::instance();
         let offset_point = base_point.mul(&hmac_bn);
         let child_point = self.point.add(&offset_point);
+
         Ok(PublicKey::from_point(child_point))
     }
 

@@ -518,15 +518,18 @@ fn deserialize_response(data: &[u8]) -> Result<AuthFetchResponse, AuthError> {
 // Varint helpers (signed, matching TS SDK Writer.writeVarIntNum / Reader.readVarIntNum)
 // ---------------------------------------------------------------------------
 
-/// Write a signed varint. Negative values write as a single 0xff byte
-/// (matching TS SDK writeVarIntNum(-1) for "no data" sentinel).
+/// Write a signed varint matching TS SDK Writer.writeVarIntNum behavior.
+///
+/// Negative values are encoded as their two's complement unsigned 64-bit
+/// representation. For -1 this gives `0xFFFFFFFFFFFFFFFF`, encoded as
+/// `0xFF` prefix + 8 LE bytes = 9 bytes total.
 fn write_varint_num(buf: &mut Vec<u8>, val: i64) {
     if val < 0 {
-        // TS SDK uses Bitcoin varint format but allows negative for "none" sentinel.
-        // writeVarIntNum(-1) in TS writes a single byte 0 (length 0 equivalent).
-        // Actually looking at the TS code, writeVarIntNum writes a standard varint
-        // and -1 is typically encoded in a special way. For safety, write 0 for -1.
-        buf.push(0);
+        // Reinterpret as u64 (two's complement), matching TS SDK which does
+        // `bn.add(2^64)` for negative BigNumber values in varIntBn.
+        let uval = val as u64;
+        buf.push(0xff);
+        buf.extend_from_slice(&uval.to_le_bytes());
         return;
     }
     let val = val as u64;
