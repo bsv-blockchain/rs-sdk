@@ -183,7 +183,7 @@ impl<W: WalletInterface + ?Sized> IdentityClient<W> {
             .wallet
             .prove_certificate(
                 ProveCertificateArgs {
-                    certificate: certificate.clone(),
+                    certificate: certificate.clone().into(),
                     fields_to_reveal: fields_to_reveal.to_vec(),
                     verifier: anyone_public,
                     privileged: BooleanDefaultFalse(None),

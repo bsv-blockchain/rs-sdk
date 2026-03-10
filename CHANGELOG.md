@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.71] - 2026-03-10
+
+### Fixed
+- **`ProveCertificateArgs.certificate` type mismatch** -- added `.into()` conversion from `Certificate` to `PartialCertificate` in identity client, fixing compilation with `network` feature enabled
+
 ## [0.1.7] - 2026-03-10
 
 ### Fixed
