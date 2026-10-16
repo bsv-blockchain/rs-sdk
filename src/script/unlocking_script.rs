@@ -1,7 +1,7 @@
 //! UnlockingScript: type-safe wrapper around Script for input scripts.
 
 use crate::script::script::Script;
-use std::ops::Deref;
+use core::ops::Deref;
 
 /// An unlocking script (scriptSig) wrapping a generic Script.
 ///

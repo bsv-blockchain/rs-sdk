@@ -5,10 +5,20 @@
 //! This avoids modular inversions during point addition and doubling,
 //! only requiring one inversion at the final conversion to affine.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::curve::Curve;
 use crate::primitives::reduction_context::ReductionContext;
-use std::sync::Arc;
 
 /// A point on the secp256k1 curve in Jacobian coordinates.
 ///

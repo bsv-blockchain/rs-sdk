@@ -4,6 +4,16 @@
 //! and unlocks with a signature and the corresponding public key.
 //! Translates the TS SDK P2PKH.ts.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::ecdsa::ecdsa_sign;
 use crate::primitives::hash::hash256;
 use crate::primitives::private_key::PrivateKey;
@@ -13,9 +23,12 @@ use crate::script::locking_script::LockingScript;
 use crate::script::op::Op;
 use crate::script::script::Script;
 use crate::script::script_chunk::ScriptChunk;
+#[cfg(feature = "async")]
 use async_trait::async_trait;
 
-use crate::script::templates::{ScriptTemplateLock, ScriptTemplateUnlock};
+use crate::script::templates::ScriptTemplateLock;
+#[cfg(feature = "async")]
+use crate::script::templates::ScriptTemplateUnlock;
 use crate::script::unlocking_script::UnlockingScript;
 use crate::transaction::sighash_preimage::SighashPreimage;
 
@@ -147,6 +160,7 @@ impl ScriptTemplateLock for P2PKH {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait]
 impl ScriptTemplateUnlock for P2PKH {
     /// Signs with the local key, so there is nothing to await — the `async` is

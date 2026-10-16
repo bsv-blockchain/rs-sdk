@@ -3,6 +3,16 @@
 //! All 214 BSV opcodes as a `#[repr(u8)]` enum. Unknown byte values
 //! map to `OpInvalidOpcode` via `From<u8>`.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 /// All BSV script opcodes with their byte values.
 ///
 /// Variant names use TS-SDK style: `Op::OpDup`, `Op::OpCheckSig`, etc.

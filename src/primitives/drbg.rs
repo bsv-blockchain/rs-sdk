@@ -3,6 +3,16 @@
 //! Used exclusively for RFC 6979 deterministic ECDSA nonce generation.
 //! This is NOT a general-purpose CSPRNG and MUST NOT be used as one.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use super::hash::sha256_hmac;
 
 /// HMAC-DRBG for deterministic random number generation (RFC 6979).

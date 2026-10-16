@@ -4,6 +4,16 @@
 //! and simple OP_RETURN data scripts.
 //! Translates the Go SDK inscriptions.go.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::script::error::ScriptError;
 use crate::script::locking_script::LockingScript;
 use crate::script::op::Op;

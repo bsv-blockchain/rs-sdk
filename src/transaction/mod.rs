@@ -3,15 +3,24 @@
 //! This module provides the core transaction types: Transaction, TransactionInput,
 //! TransactionOutput, plus binary wire format and EF format (BRC-30) serialization.
 
+#[cfg(feature = "std")]
 pub mod beef;
+#[cfg(feature = "std")]
 pub mod beef_party;
+#[cfg(feature = "std")]
 pub mod beef_tx;
+#[cfg(feature = "std")]
 pub mod broadcaster;
+#[cfg(feature = "std")]
 pub mod broadcasters;
+#[cfg(feature = "std")]
 pub mod chain_tracker;
+#[cfg(feature = "std")]
 pub mod chaintrackers;
 pub mod error;
 pub mod fee_model;
+pub(crate) mod io;
+#[cfg(feature = "std")]
 pub mod merkle_path;
 pub mod sighash_preimage;
 #[allow(clippy::module_inception)]
@@ -19,20 +28,26 @@ pub mod transaction;
 pub mod transaction_input;
 pub mod transaction_output;
 
+#[cfg(feature = "std")]
 pub use beef::Beef;
+#[cfg(feature = "std")]
 pub use beef_party::BeefParty;
+#[cfg(feature = "std")]
 pub use beef_tx::BeefTx;
+#[cfg(feature = "std")]
 pub use broadcaster::{BroadcastFailure, BroadcastResponse, Broadcaster};
+#[cfg(feature = "std")]
 pub use chain_tracker::ChainTracker;
 pub use error::TransactionError;
 pub use fee_model::{FeeModel, SatoshisPerKilobyte};
+#[cfg(feature = "std")]
 pub use merkle_path::{MerklePath, MerklePathLeaf};
 pub use sighash_preimage::SighashPreimage;
 pub use transaction::Transaction;
 pub use transaction_input::TransactionInput;
 pub use transaction_output::TransactionOutput;
 
-use std::io::{self, Read, Write};
+use io::{Read, Result as IoResult, Write};
 
 /// Read a Bitcoin varint from a reader.
 ///
@@ -41,7 +56,7 @@ use std::io::{self, Read, Write};
 /// - 0xfd: 3 bytes (0xfd + u16 LE)
 /// - 0xfe: 5 bytes (0xfe + u32 LE)
 /// - 0xff: 9 bytes (0xff + u64 LE)
-pub(crate) fn read_varint(reader: &mut impl Read) -> io::Result<u64> {
+pub(crate) fn read_varint(reader: &mut impl Read) -> IoResult<u64> {
     let mut first = [0u8; 1];
     reader.read_exact(&mut first)?;
     match first[0] {
@@ -65,7 +80,7 @@ pub(crate) fn read_varint(reader: &mut impl Read) -> io::Result<u64> {
 }
 
 /// Write a Bitcoin varint to a writer.
-pub(crate) fn write_varint(writer: &mut impl Write, val: u64) -> io::Result<()> {
+pub(crate) fn write_varint(writer: &mut impl Write, val: u64) -> IoResult<()> {
     if val < 0xfd {
         writer.write_all(&[val as u8])
     } else if val <= 0xffff {
@@ -81,26 +96,26 @@ pub(crate) fn write_varint(writer: &mut impl Write, val: u64) -> io::Result<()> 
 }
 
 /// Read a u32 in little-endian from a reader.
-pub(crate) fn read_u32_le(reader: &mut impl Read) -> io::Result<u32> {
+pub(crate) fn read_u32_le(reader: &mut impl Read) -> IoResult<u32> {
     let mut buf = [0u8; 4];
     reader.read_exact(&mut buf)?;
     Ok(u32::from_le_bytes(buf))
 }
 
 /// Write a u32 in little-endian to a writer.
-pub(crate) fn write_u32_le(writer: &mut impl Write, val: u32) -> io::Result<()> {
+pub(crate) fn write_u32_le(writer: &mut impl Write, val: u32) -> IoResult<()> {
     writer.write_all(&val.to_le_bytes())
 }
 
 /// Read a u64 in little-endian from a reader.
-pub(crate) fn read_u64_le(reader: &mut impl Read) -> io::Result<u64> {
+pub(crate) fn read_u64_le(reader: &mut impl Read) -> IoResult<u64> {
     let mut buf = [0u8; 8];
     reader.read_exact(&mut buf)?;
     Ok(u64::from_le_bytes(buf))
 }
 
 /// Write a u64 in little-endian to a writer.
-pub(crate) fn write_u64_le(writer: &mut impl Write, val: u64) -> io::Result<()> {
+pub(crate) fn write_u64_le(writer: &mut impl Write, val: u64) -> IoResult<()> {
     writer.write_all(&val.to_le_bytes())
 }
 

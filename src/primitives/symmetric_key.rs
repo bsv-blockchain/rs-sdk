@@ -4,6 +4,16 @@
 //! with the TS SDK's 32-byte IV convention. Ciphertext format:
 //! IV(32) || ciphertext || authTag(16).
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::aes_gcm::{aes_gcm_decrypt_ts_compat, aes_gcm_encrypt_ts_compat};
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::error::PrimitivesError;

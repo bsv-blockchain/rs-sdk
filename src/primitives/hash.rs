@@ -8,6 +8,16 @@
 // SHA-256 (FIPS 180-4)
 // ============================================================================
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 /// SHA-256 round constants (first 32 bits of the fractional parts of
 /// the cube roots of the first 64 primes).
 const K256: [u32; 64] = [

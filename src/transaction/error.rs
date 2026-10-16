@@ -1,12 +1,31 @@
 //! Error types for the transaction module.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use thiserror::Error;
 
 /// Unified error type for all transaction operations.
 #[derive(Debug, Error)]
 pub enum TransactionError {
+    /// With `std`, this is a [`std::io::Error`](std::io::Error). Without `std`,
+    /// serialization failures are reported as a message because `std::io` is
+    /// unavailable.
+    #[cfg(feature = "std")]
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
+
+    /// Alloc-only I/O failure (unexpected end of input, and similar).
+    #[cfg(not(feature = "std"))]
+    #[error("I/O error: {0}")]
+    Io(String),
 
     #[error("invalid format: {0}")]
     InvalidFormat(String),
@@ -58,4 +77,11 @@ pub enum TransactionError {
 
     #[error("primitives error: {0}")]
     Primitives(#[from] crate::primitives::error::PrimitivesError),
+}
+
+#[cfg(not(feature = "std"))]
+impl From<crate::transaction::io::Error> for TransactionError {
+    fn from(err: crate::transaction::io::Error) -> Self {
+        TransactionError::Io(err.to_string())
+    }
 }

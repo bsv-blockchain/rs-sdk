@@ -1,6 +1,16 @@
 //! Bitcoin transaction output type.
 
-use std::io::{Read, Write};
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
+use crate::transaction::io::{Read, Write};
 
 use crate::script::locking_script::LockingScript;
 use crate::transaction::error::TransactionError;

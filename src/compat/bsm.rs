@@ -5,6 +5,16 @@
 //! backward-compatibility feature; the preferred modern equivalent
 //! is BRC-77.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::compat::CompatError;
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::ecdsa::{ecdsa_sign, ecdsa_verify};
@@ -29,17 +39,20 @@ pub struct BSM;
 /// - value <= 0xffffffff: 0xfe + 4 bytes LE
 /// - else: 0xff + 8 bytes LE
 fn write_varint(buf: &mut Vec<u8>, value: usize) {
+    // Compare as u64 so the 32-bit `usize` on thumb targets does not make the
+    // last branch look tautological. Message lengths still fit in `usize`.
+    let value = value as u64;
     if value < 0xfd {
         buf.push(value as u8);
     } else if value <= 0xffff {
         buf.push(0xfd);
         buf.extend_from_slice(&(value as u16).to_le_bytes());
-    } else if value <= 0xffffffff {
+    } else if value <= 0xffff_ffff {
         buf.push(0xfe);
         buf.extend_from_slice(&(value as u32).to_le_bytes());
     } else {
         buf.push(0xff);
-        buf.extend_from_slice(&(value as u64).to_le_bytes());
+        buf.extend_from_slice(&value.to_le_bytes());
     }
 }
 

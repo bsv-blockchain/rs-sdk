@@ -5,6 +5,16 @@
 //! faster than general point multiplication for operations like key
 //! generation (privkey * G).
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::curve::Curve;
 use crate::primitives::jacobian_point::JacobianPoint;
@@ -25,7 +35,7 @@ pub struct BasePoint {
 }
 
 /// Singleton BasePoint instance.
-static BASE_POINT_INIT: std::sync::OnceLock<BasePoint> = std::sync::OnceLock::new();
+static BASE_POINT_INIT: once_cell::race::OnceBox<BasePoint> = once_cell::race::OnceBox::new();
 
 impl BasePoint {
     /// Get the singleton precomputed base point.
@@ -45,11 +55,11 @@ impl BasePoint {
             }
 
             let neg_table: Vec<JacobianPoint> = table.iter().map(|p| p.neg()).collect();
-            BasePoint {
+            alloc::boxed::Box::new(BasePoint {
                 window,
                 table,
                 neg_table,
-            }
+            })
         })
     }
 

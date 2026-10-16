@@ -8,6 +8,16 @@
 //! a no-op for the mnemonic itself. Non-ASCII passphrases should be
 //! pre-normalized by the caller.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use super::bip39_wordlists;
 use super::error::CompatError;
 use crate::primitives::hash::{pbkdf2_hmac_sha512, sha256};
@@ -248,8 +258,8 @@ impl Mnemonic {
     }
 }
 
-impl std::fmt::Display for Mnemonic {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Mnemonic {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.to_phrase())
     }
 }

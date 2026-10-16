@@ -20,19 +20,23 @@ name = "bsv"
 opt-level = 2
 
 [dependencies]
-getrandom = "0.2"
-thiserror = "2.0"
-async-trait = "0.1"
+# Lazy singletons (curve, base point) that work in no_std + alloc.
+once_cell = { version = "1", default-features = false, features = ["alloc", "race"] }
+thiserror = { version = "2.0", default-features = false }
+# OS entropy. Enabled by `std`. no_std callers install `random::set_rng_hook`.
+getrandom = { version = "0.2", optional = true }
+# Async trait objects (script templates, broadcaster, chain tracker, wallet).
+async-trait = { version = "0.1", optional = true }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"], optional = true }
 reqwest = { version = "0.12", features = ["json"], optional = true }
 tokio-tungstenite = { version = "0.24", optional = true }
 futures-util = { version = "0.3", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
-# serde_json is a hard dep (not feature-gated) because the public
-# `BroadcastFailure.more: Option<serde_json::Value>` field needs it.
-# Cost is negligible (pure-Rust, ~100KB compiled).
-serde_json = "1"
-indexmap = { version = "2", features = ["serde"] }
+# serde_json and indexmap are not hard deps of the no_std core. `std` enables
+# them so the historical default API stays intact (`BroadcastFailure.more`,
+# IndexMap fields) without turning on serde derives. `serde` enables them too.
+serde_json = { version = "1", optional = true }
+indexmap = { version = "2", optional = true, default-features = false }
 
 [dev-dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -117,18 +121,42 @@ path = "tests/vectors/generate_auth_certificate_rust_vector.rs"
 required-features = ["serde"]
 
 [features]
-default = []
-# `serde` enables the type-level Serialize/Deserialize derives on wallet, cert,
-# and remittance data types WITHOUT pulling the async network stack (tokio,
-# reqwest, tokio-tungstenite, futures-util), so downstream crates can get the
-# serde derives on wasm32 targets where those async deps don't compile.
-serde = ["dep:serde"]
-# `network` still transitively enables `serde`, so any existing
+# Default matches the historical crate: full std surface, no serde derives,
+# no network stack. `--no-default-features` is no_std + alloc.
+default = ["std"]
+# OS entropy, std::io errors, and every module that needs fs/net/thread/time
+# (auth, wallet, services, remittance, broadcasters, chain trackers, BEEF,
+# Merkle proofs). Also enables `async` and the serde_json/indexmap types that
+# are part of the default public API without the `serde` derives.
+std = [
+    "dep:getrandom",
+    "async",
+    "dep:serde_json",
+    "dep:indexmap",
+    "indexmap/std",
+    "thiserror/std",
+]
+# async-trait. Pulled in by `std`, so default builds keep async
+# `ScriptTemplateUnlock`, `Broadcaster`, and `ChainTracker`. A no_std build
+# leaves it off; P2PKH/RPuzzle locking and sighash preimages stay available.
+async = ["dep:async-trait"]
+# Serialize/Deserialize derives, plus serde_json and indexmap (ordered maps
+# and `BroadcastFailure.more`) so those crates are not hard deps of no_std.
+serde = ["dep:serde", "dep:serde_json", "dep:indexmap", "indexmap/serde"]
+# `network` still transitively enables `serde` and `std`, so any existing
 # `--features network` consumer is unchanged.
-network = ["serde", "dep:tokio", "dep:reqwest", "dep:tokio-tungstenite", "dep:futures-util"]
+network = [
+    "std",
+    "serde",
+    "async",
+    "dep:tokio",
+    "dep:reqwest",
+    "dep:tokio-tungstenite",
+    "dep:futures-util",
+]
 # The SDK is entropy-backend-agnostic. On `wasm32-unknown-unknown` getrandom has
 # no default entropy source, so the consumer MUST choose a backend: enable
 # `wasm-js` for a browser / Node host (`crypto.getRandomValues`), or register a
 # custom backend themselves (e.g. an enclave / WASI attested RNG). A library must
 # not force the backend on downstream crates (per getrandom's own guidance).
-wasm-js = ["getrandom/js"]
+wasm-js = ["getrandom?/js"]

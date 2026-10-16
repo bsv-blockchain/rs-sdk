@@ -4,8 +4,18 @@
 //! a small-vec optimization that keeps values up to 256 bits on the stack.
 //! This is the Rust-native counterpart to the TS SDK's BigNumber class.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::error::PrimitivesError;
-use std::sync::Arc;
 
 // ---------------------------------------------------------------------------
 // SmallLimbs: inline storage for <= 4 u64 limbs (256 bits), heap for larger
@@ -729,8 +739,8 @@ impl BigNumber {
 // Display
 // ---------------------------------------------------------------------------
 
-impl std::fmt::Display for BigNumber {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for BigNumber {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.to_hex())
     }
 }
@@ -744,23 +754,23 @@ impl PartialEq for BigNumber {
 impl Eq for BigNumber {}
 
 impl PartialOrd for BigNumber {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(std::cmp::Ord::cmp(self, other))
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        Some(core::cmp::Ord::cmp(self, other))
     }
 }
 
 impl Ord for BigNumber {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.cmp_ord(other)
     }
 }
 
 impl BigNumber {
-    fn cmp_ord(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp_ord(&self, other: &Self) -> core::cmp::Ordering {
         match BigNumber::cmp(self, other) {
-            -1 => std::cmp::Ordering::Less,
-            0 => std::cmp::Ordering::Equal,
-            _ => std::cmp::Ordering::Greater,
+            -1 => core::cmp::Ordering::Less,
+            0 => core::cmp::Ordering::Equal,
+            _ => core::cmp::Ordering::Greater,
         }
     }
 }
@@ -1219,7 +1229,7 @@ impl BigNumber {
             }
 
             if c < 0 {
-                std::mem::swap(&mut a, &mut b);
+                core::mem::swap(&mut a, &mut b);
             }
 
             a = a.sub(&b);

@@ -1,5 +1,15 @@
 //! Error types for the primitives module.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use thiserror::Error;
 
 /// Unified error type for all primitive operations.

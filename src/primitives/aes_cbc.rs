@@ -2,6 +2,16 @@
 //!
 //! Follows the Go SDK's clean AES-CBC implementation.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::aes::{aes_decrypt_block, aes_encrypt_block, aes_key_expansion};
 use crate::primitives::PrimitivesError;
 
@@ -11,7 +21,7 @@ pub fn pkcs7_pad(data: &[u8], block_size: usize) -> Vec<u8> {
     let padding = block_size - (data.len() % block_size);
     let mut result = Vec::with_capacity(data.len() + padding);
     result.extend_from_slice(data);
-    result.extend(std::iter::repeat_n(padding as u8, padding));
+    result.extend(core::iter::repeat_n(padding as u8, padding));
     result
 }
 

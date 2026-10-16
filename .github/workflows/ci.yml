@@ -38,13 +38,13 @@ jobs:
       - if: matrix.features == 'network'
         run: npm install --no-save --ignore-scripts --no-audit --no-fund @bsv/sdk@2.4.1
       - if: matrix.features == 'default'
-        run: cargo test --no-default-features --verbose
+        run: cargo test --verbose
       - if: matrix.features == 'serde'
-        run: cargo test --no-default-features --features serde --verbose
+        run: cargo test --features serde --verbose
       - if: matrix.features == 'network'
         env:
           BSV_TS_SDK_PATH: node_modules/@bsv/sdk
-        run: cargo test --no-default-features --features network --verbose
+        run: cargo test --features network --verbose
 
   auth-interop-fixture:
     name: Auth interop fixture drift
@@ -67,7 +67,17 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
-      - run: cargo build --no-default-features --features serde,wasm-js --target wasm32-unknown-unknown --verbose
+      - run: cargo build --features serde,wasm-js --target wasm32-unknown-unknown --verbose
+
+  nostd:
+    name: no_std (thumbv8m.main-none-eabihf)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: thumbv8m.main-none-eabihf
+      - run: cargo build --no-default-features --target thumbv8m.main-none-eabihf --verbose
 
   clippy:
     name: Clippy
