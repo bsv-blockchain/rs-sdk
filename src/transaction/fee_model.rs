@@ -3,6 +3,16 @@
 //! Provides the FeeModel trait and the standard SatoshisPerKilobyte implementation
 //! that computes transaction fees based on estimated transaction size.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::transaction::error::TransactionError;
 use crate::transaction::transaction::Transaction;
 

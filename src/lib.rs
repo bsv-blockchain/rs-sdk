@@ -25,14 +25,29 @@
 //!   BSM (Bitcoin Signed Message), and ECIES encryption.
 //! - [`services`] -- Overlay network services: lookup resolution, topic
 //!   broadcasting, identity management, and admin token templates.
+//!
+//! ## Features
+//!
+//! The `std` feature is on by default and preserves the full API above.
+//! `--no-default-features` builds `no_std` + `alloc` with [`primitives`],
+//! [`script`], [`compat`], and transaction parse/serialize plus sighash
+//! preimages. Auth, wallet, services, remittance, BEEF, Merkle proofs,
+//! broadcasters, and chain trackers need `std`.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+
+#[cfg(feature = "std")]
 pub mod auth;
 pub mod compat;
 pub mod primitives;
 pub mod script;
+#[cfg(feature = "std")]
 pub mod services;
 pub mod transaction;
+#[cfg(feature = "std")]
 pub mod wallet;
 
-#[cfg(any(feature = "serde", feature = "network"))]
+#[cfg(all(feature = "std", any(feature = "serde", feature = "network")))]
 pub mod remittance;

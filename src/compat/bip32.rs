@@ -4,6 +4,16 @@
 //! from a single seed. Supports extended private and public keys (xprv/xpub),
 //! hardened and normal child derivation, and Base58Check serialization.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::compat::error::CompatError;
 use crate::primitives::base_point::BasePoint;
 use crate::primitives::big_number::{BigNumber, Endian};
@@ -387,8 +397,8 @@ impl ExtendedKey {
     }
 }
 
-impl std::fmt::Display for ExtendedKey {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for ExtendedKey {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.to_base58())
     }
 }

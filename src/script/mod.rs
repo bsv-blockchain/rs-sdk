@@ -17,7 +17,9 @@ pub(crate) mod spend_ops;
 pub(crate) mod spend_stack;
 pub mod templates;
 
-pub use templates::{ScriptTemplateLock, ScriptTemplateUnlock};
+pub use templates::ScriptTemplateLock;
+#[cfg(feature = "async")]
+pub use templates::ScriptTemplateUnlock;
 
 pub use address::Address;
 pub use error::ScriptError;

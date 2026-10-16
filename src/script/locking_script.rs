@@ -1,7 +1,7 @@
 //! LockingScript: type-safe wrapper around Script for output scripts.
 
 use crate::script::script::Script;
-use std::ops::Deref;
+use core::ops::Deref;
 
 /// A locking script (scriptPubKey) wrapping a generic Script.
 ///

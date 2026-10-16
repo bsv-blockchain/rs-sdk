@@ -8,9 +8,19 @@
 //! multiplication and reduction interleaved, avoiding the need for a
 //! full-width product followed by division.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::reduction_context::ReductionContext;
-use std::sync::Arc;
 
 /// Montgomery reduction context for fast modular multiplication.
 ///

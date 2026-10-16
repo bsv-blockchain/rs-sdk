@@ -4,6 +4,16 @@
 //! where checksum is the first 4 bytes of hash256 of the payload (everything before checksum).
 //! Translates the Go SDK bip276.go.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::hash::hash256;
 use crate::primitives::utils::{from_hex, to_hex};
 use crate::script::error::ScriptError;

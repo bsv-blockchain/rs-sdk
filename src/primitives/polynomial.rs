@@ -4,6 +4,16 @@
 //! is the secp256k1 field prime, and Lagrange interpolation for secret recovery.
 //! Follows the TS SDK Polynomial.ts implementation exactly.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::curve::Curve;
 use crate::primitives::error::PrimitivesError;

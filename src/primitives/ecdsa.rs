@@ -4,6 +4,16 @@
 //! RFC 6979 deterministic nonce generation via HMAC-DRBG. Follows the
 //! TS SDK ECDSA.ts implementation for cross-language compatibility.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::base_point::BasePoint;
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::curve::Curve;

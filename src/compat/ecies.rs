@@ -4,6 +4,16 @@
 //! for backward compatibility with existing BSV ecosystem tools.
 //! The preferred modern equivalent is BRC-78.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::compat::CompatError;
 use crate::primitives::aes_cbc::{aes_cbc_decrypt, aes_cbc_encrypt};
 use crate::primitives::big_number::Endian;
@@ -427,7 +437,7 @@ mod tests {
 
         let plaintext = ECIES::electrum_decrypt(&ciphertext, &bob_key, None).unwrap();
         assert_eq!(
-            std::str::from_utf8(&plaintext).unwrap(),
+            core::str::from_utf8(&plaintext).unwrap(),
             "this is my test message"
         );
     }
@@ -446,7 +456,7 @@ mod tests {
 
         let plaintext = ECIES::electrum_decrypt(&ciphertext, &alice_key, None).unwrap();
         assert_eq!(
-            std::str::from_utf8(&plaintext).unwrap(),
+            core::str::from_utf8(&plaintext).unwrap(),
             "this is my test message"
         );
     }

@@ -116,10 +116,50 @@ Full benchmark report: [`Rust-vs-TS-performance.md`](Rust-vs-TS-performance.md)
 
 ## Feature Flags
 
-| Feature | Description |
-|---------|-------------|
-| `network` | Enables async HTTP/WebSocket functionality via tokio, reqwest, and tungstenite. Required for `HttpWalletJson`, `LookupResolver`, `TopicBroadcaster`, and other network-dependent types. |
-| *(default)* | Pure cryptography and data structures. No async runtime, no network I/O. |
+| Feature | Default | Description |
+|---------|---------|-------------|
+| `std` | yes | Full standard library build. OS entropy via `getrandom`, `std::io` transaction readers, and the modules that need threads, files, or the network: `auth`, `wallet`, `services`, `remittance`, BEEF, Merkle proofs, broadcasters, and chain trackers. Also enables `async`, `serde_json`, and `indexmap` so the historical default API (`BroadcastFailure.more`, ordered certificate maps, async script templates) stays in place. |
+| `async` | via `std` | `async-trait` for `ScriptTemplateUnlock`, `Transaction::sign`, `Broadcaster`, and `ChainTracker`. |
+| `serde` | no | `Serialize` / `Deserialize` derives on wallet, certificate, and remittance types. Also enables `serde_json` and `indexmap`. Does not pull tokio or reqwest. |
+| `network` | no | Async HTTP and WebSocket (tokio, reqwest, tungstenite). Implies `std`, `async`, and `serde`. Required for `HttpWalletJson`, `LookupResolver`, `TopicBroadcaster`, and the network broadcasters. |
+| `wasm-js` | no | `getrandom`'s JavaScript backend (`crypto.getRandomValues`) for `wasm32-unknown-unknown`. |
+
+```sh
+cargo add bsv-sdk
+cargo add bsv-sdk --features network
+cargo add bsv-sdk --features serde
+```
+
+### `no_std` + `alloc`
+
+`--no-default-features` builds without the standard library, for targets such as Ledger apps (`thumbv8m.main-none-eabihf`). The crate still uses `alloc`.
+
+```sh
+rustup target add thumbv8m.main-none-eabihf
+cargo build --no-default-features --target thumbv8m.main-none-eabihf
+```
+
+That build includes:
+
+- `primitives` — keys, ECDSA, hashing, Base58, `TransactionSignature` and `SIGHASH_FORKID`
+- `script` — script types, the interpreter, addresses, and the synchronous P2PKH / RPuzzle templates
+- `compat` — BIP-32, BIP-39, BSM, and ECIES
+- `transaction` — binary and EF parse/serialize, fee model, and sighash preimage (`sighash_preimage`, including ForkID)
+
+`auth`, `wallet`, `services`, `remittance`, BEEF, Merkle proofs, broadcasters, chain trackers, and `PushDrop` (wallet-backed) require the `std` feature. `ScriptTemplateUnlock` and `Transaction::sign` need the `async` feature, which `std` turns on.
+
+Entropy comes from a hook you install before generating keys or nonces:
+
+```rust
+fn ledger_rng(buf: &mut [u8]) -> Result<(), &'static str> {
+    // Fill `buf` from the device CSPRNG (Ledger: cx_rng).
+    Ok(())
+}
+
+bsv::primitives::random::set_rng_hook(ledger_rng);
+```
+
+`set_rng_hook` exists only when `std` is off. Default builds keep using `getrandom`.
 
 ## Minimum Supported Rust Version
 

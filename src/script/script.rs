@@ -3,6 +3,16 @@
 //! Translates the TS SDK Script.ts. Supports parsing from binary, hex,
 //! and ASM formats with identical OP_RETURN conditional-block semantics.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::script::error::ScriptError;
 use crate::script::op::Op;
 use crate::script::script_chunk::ScriptChunk;

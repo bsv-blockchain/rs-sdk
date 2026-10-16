@@ -4,21 +4,37 @@
 //! for P2PKH, PushDrop, and RPuzzle templates. Translates the TS SDK ScriptTemplate.ts
 //! and related template classes.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 pub mod p2pkh;
+#[cfg(feature = "std")]
 pub mod push_drop;
 pub mod r_puzzle;
 
 pub use p2pkh::P2PKH;
+#[cfg(feature = "std")]
 pub use push_drop::{
     decode as decode_push_drop, push_drop_unlocking_script, LockPosition, PushDrop, PushDropData,
     PushDropUnlock,
 };
 pub use r_puzzle::RPuzzle;
 
+#[cfg(feature = "async")]
 use async_trait::async_trait;
 
 use crate::script::error::ScriptError;
-use crate::script::{LockingScript, UnlockingScript};
+use crate::script::LockingScript;
+#[cfg(feature = "async")]
+use crate::script::UnlockingScript;
+#[cfg(feature = "async")]
 use crate::transaction::sighash_preimage::SighashPreimage;
 
 /// Trait for creating locking scripts (analogous to TS SDK ScriptTemplate).
@@ -59,6 +75,7 @@ pub trait ScriptTemplateLock {
 /// non-`Send` and breaks the wallets that await it from inside their own
 /// `#[async_trait]` methods. The requirement is real; it just comes from the
 /// desugaring, not from here.
+#[cfg(feature = "async")]
 #[async_trait]
 pub trait ScriptTemplateUnlock {
     /// Sign a transaction input and produce an unlocking script.

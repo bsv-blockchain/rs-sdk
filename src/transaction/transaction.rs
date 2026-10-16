@@ -1,14 +1,25 @@
 //! Bitcoin transaction type with wire format and EF format serialization.
 
-use std::io::{Cursor, Read, Write};
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
 
 use crate::primitives::hash::hash256;
 use crate::primitives::transaction_signature::{
     SIGHASH_ANYONECANPAY, SIGHASH_FORKID, SIGHASH_NONE, SIGHASH_SINGLE,
 };
 use crate::script::locking_script::LockingScript;
+#[cfg(feature = "async")]
 use crate::script::templates::ScriptTemplateUnlock;
 use crate::transaction::error::TransactionError;
+use crate::transaction::io::{Cursor, Read, Write};
+#[cfg(feature = "std")]
 use crate::transaction::merkle_path::MerklePath;
 use crate::transaction::sighash_preimage::SighashPreimage;
 use crate::transaction::transaction_input::TransactionInput;
@@ -36,6 +47,9 @@ pub struct Transaction {
     /// Lock time.
     pub lock_time: u32,
     /// Merkle path for SPV verification (populated from BEEF).
+    ///
+    /// Present with the `std` feature, alongside BEEF and Merkle proof support.
+    #[cfg(feature = "std")]
     pub merkle_path: Option<MerklePath>,
 }
 
@@ -47,6 +61,7 @@ impl Transaction {
             inputs: Vec::new(),
             outputs: Vec::new(),
             lock_time: 0,
+            #[cfg(feature = "std")]
             merkle_path: None,
         }
     }
@@ -74,6 +89,7 @@ impl Transaction {
             inputs,
             outputs,
             lock_time,
+            #[cfg(feature = "std")]
             merkle_path: None,
         })
     }
@@ -90,6 +106,7 @@ impl Transaction {
     ///
     /// Decodes the hex to bytes, parses the BEEF structure, and extracts the
     /// subject transaction (the last tx, or the atomic txid target).
+    #[cfg(feature = "std")]
     pub fn from_beef(beef_hex: &str) -> Result<Self, TransactionError> {
         let beef = crate::transaction::beef::Beef::from_hex(beef_hex)?;
         beef.into_transaction()
@@ -133,6 +150,7 @@ impl Transaction {
     /// leaves. Consumers use this index to resolve a leaf's inputs through the
     /// complete placement elsewhere in the tree. A placement carrying a proof
     /// is preferred because a proven transaction terminates ancestry walks.
+    #[cfg(feature = "std")]
     pub(crate) fn source_transaction_index(
         &self,
     ) -> Result<std::collections::HashMap<String, &Transaction>, TransactionError> {
@@ -170,6 +188,7 @@ impl Transaction {
     /// placement in the owned tree. The result is delegated to `Beef` for
     /// deduplication, topological sorting, and serialization.
     /// Matches the TS SDK's `Transaction.toBEEF()`.
+    #[cfg(feature = "std")]
     pub fn to_beef(&self) -> Result<Vec<u8>, TransactionError> {
         use crate::transaction::beef::{Beef, BEEF_V1};
         use crate::transaction::beef_tx::BeefTx;
@@ -348,6 +367,7 @@ impl Transaction {
             inputs,
             outputs,
             lock_time,
+            #[cfg(feature = "std")]
             merkle_path: None,
         })
     }
@@ -687,6 +707,7 @@ impl Transaction {
     /// across the `.await`, and `&T` is `Send` only when `T: Sync`. Requiring it
     /// of every implementor would exclude templates that are perfectly usable
     /// single-threaded.
+    #[cfg(feature = "async")]
     pub async fn sign(
         &mut self,
         input_index: usize,
@@ -717,6 +738,7 @@ impl Transaction {
     /// Each input must have its `source_transaction` set so that the source
     /// output's satoshis and locking script can be resolved. If you need
     /// different templates or scopes per input, use the single-input `sign()`.
+    #[cfg(feature = "async")]
     pub async fn sign_all_inputs(
         &mut self,
         template: &(dyn ScriptTemplateUnlock + Sync),
@@ -799,14 +821,14 @@ fn strip_codeseparator(script: &[u8]) -> Vec<u8> {
         if opcode > 0 && opcode < 76 {
             // Direct push: opcode is the number of bytes to push
             let push_len = opcode as usize;
-            let end = std::cmp::min(i + 1 + push_len, script.len());
+            let end = core::cmp::min(i + 1 + push_len, script.len());
             result.extend_from_slice(&script[i..end]);
             i = end;
         } else if opcode == 76 {
             // OP_PUSHDATA1: next byte is length
             if i + 1 < script.len() {
                 let push_len = script[i + 1] as usize;
-                let end = std::cmp::min(i + 2 + push_len, script.len());
+                let end = core::cmp::min(i + 2 + push_len, script.len());
                 result.extend_from_slice(&script[i..end]);
                 i = end;
             } else {
@@ -817,7 +839,7 @@ fn strip_codeseparator(script: &[u8]) -> Vec<u8> {
             // OP_PUSHDATA2: next 2 bytes are length (LE)
             if i + 2 < script.len() {
                 let push_len = u16::from_le_bytes([script[i + 1], script[i + 2]]) as usize;
-                let end = std::cmp::min(i + 3 + push_len, script.len());
+                let end = core::cmp::min(i + 3 + push_len, script.len());
                 result.extend_from_slice(&script[i..end]);
                 i = end;
             } else {
@@ -833,7 +855,7 @@ fn strip_codeseparator(script: &[u8]) -> Vec<u8> {
                     script[i + 3],
                     script[i + 4],
                 ]) as usize;
-                let end = std::cmp::min(i + 5 + push_len, script.len());
+                let end = core::cmp::min(i + 5 + push_len, script.len());
                 result.extend_from_slice(&script[i..end]);
                 i = end;
             } else {

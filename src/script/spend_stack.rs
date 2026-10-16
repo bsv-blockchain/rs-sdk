@@ -3,6 +3,16 @@
 //! All stack methods are defined as methods on Spend so they can access
 //! the stack, alt_stack, and memory tracking fields directly.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::script::error::ScriptError;
 use crate::script::spend::Spend;
 

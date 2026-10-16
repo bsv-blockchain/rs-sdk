@@ -4,6 +4,16 @@
 //! on Spend. Organized by category: constants, flow control, stack, splice,
 //! bitwise, arithmetic, crypto.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::script::error::ScriptError;
 use crate::script::op::Op;

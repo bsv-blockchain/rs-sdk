@@ -3,6 +3,16 @@
 //! Supports mainnet (prefix 0x00) and testnet (prefix 0x6f) addresses.
 //! Translates the Go SDK address.go.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::public_key::PublicKey;
 use crate::primitives::utils::{base58_check_decode, base58_check_encode};
 use crate::script::error::ScriptError;
@@ -114,8 +124,8 @@ impl Address {
     }
 }
 
-impl std::fmt::Display for Address {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Address {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.address_string)
     }
 }

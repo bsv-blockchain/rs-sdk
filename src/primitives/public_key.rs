@@ -4,6 +4,16 @@
 //! DER encoding/decoding, address derivation, and signature
 //! verification. Mirrors the TS SDK PublicKey.ts API.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::base_point::BasePoint;
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::ecdsa::ecdsa_verify;

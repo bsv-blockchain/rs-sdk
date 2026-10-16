@@ -1,6 +1,16 @@
 //! The sighash preimage — bytes and scope, as one indivisible value.
 
-use std::ops::Deref;
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
+use core::ops::Deref;
 
 /// A sighash preimage together with the sighash scope it was computed under.
 ///

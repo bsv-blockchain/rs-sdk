@@ -4,10 +4,20 @@
 //! invm, pow, sqrt) over BigNumber values under a given modulus. This is used
 //! for secp256k1 field and scalar arithmetic.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::k256::k256_reduce_limbs;
 use crate::primitives::montgomery::Montgomery;
-use std::sync::Arc;
 
 /// Context for performing modular reduction operations.
 ///
@@ -24,7 +34,7 @@ pub struct ReductionContext {
 }
 
 /// Trait for Mersenne-like prime reduction (used by K256).
-pub trait MersennePrime: std::fmt::Debug + Send + Sync {
+pub trait MersennePrime: core::fmt::Debug + Send + Sync {
     /// Reduce a BigNumber in-place using the Mersenne prime structure.
     fn ireduce(&self, num: &mut BigNumber);
     /// The prime value.

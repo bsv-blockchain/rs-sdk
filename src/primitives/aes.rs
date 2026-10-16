@@ -4,6 +4,16 @@
 //! This is a from-scratch, table-based implementation intended for
 //! functional correctness and portability. Not constant-time.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::PrimitivesError;
 
 // AES S-box (SubBytes lookup table)

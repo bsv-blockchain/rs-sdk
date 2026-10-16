@@ -2,6 +2,16 @@
 //!
 //! Each chunk is either a bare opcode or a data push (opcode + data bytes).
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::script::op::Op;
 
 /// A single parsed element of a script.

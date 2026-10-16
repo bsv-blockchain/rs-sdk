@@ -7,6 +7,16 @@
 //! Phase 3 TODOs: format() and formatOTDA() methods require Script and
 //! Transaction types that are not yet available.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::error::PrimitivesError;
 use crate::primitives::signature::Signature;

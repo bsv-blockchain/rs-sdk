@@ -5,6 +5,16 @@
 //! This enables knowledge-of-k-value based script puzzles.
 //! Translates the TS SDK RPuzzle.ts.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::ecdsa::ecdsa_sign_with_k;
 use crate::primitives::hash::sha256;
@@ -14,9 +24,12 @@ use crate::script::locking_script::LockingScript;
 use crate::script::op::Op;
 use crate::script::script::Script;
 use crate::script::script_chunk::ScriptChunk;
+#[cfg(feature = "async")]
 use async_trait::async_trait;
 
-use crate::script::templates::{ScriptTemplateLock, ScriptTemplateUnlock};
+use crate::script::templates::ScriptTemplateLock;
+#[cfg(feature = "async")]
+use crate::script::templates::ScriptTemplateUnlock;
 use crate::script::unlocking_script::UnlockingScript;
 use crate::transaction::sighash_preimage::SighashPreimage;
 
@@ -187,6 +200,7 @@ impl ScriptTemplateLock for RPuzzle {
     }
 }
 
+#[cfg(feature = "async")]
 #[async_trait]
 impl ScriptTemplateUnlock for RPuzzle {
     /// Signs with the local key, so there is nothing to await — the `async` is

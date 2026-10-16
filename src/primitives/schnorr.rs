@@ -6,6 +6,16 @@
 //!
 //! Follows the TS SDK Schnorr.ts implementation exactly.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::base_point::BasePoint;
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::curve::Curve;

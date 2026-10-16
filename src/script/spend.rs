@@ -4,6 +4,16 @@
 //! spending transaction satisfies its locking conditions. Implements the
 //! full BSV opcode set including restored and Chronicle 2026 opcodes.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::script::error::ScriptError;
 use crate::script::locking_script::LockingScript;
 use crate::script::op::Op;

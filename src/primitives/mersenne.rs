@@ -4,6 +4,16 @@
 //! integers. For such primes, modular reduction can exploit the identity
 //! 2^n = k (mod p) to avoid full division.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::reduction_context::MersennePrime;
 

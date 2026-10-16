@@ -1,5 +1,15 @@
 //! Error types for the compatibility layer.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::error::PrimitivesError;
 use thiserror::Error;
 

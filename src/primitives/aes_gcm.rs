@@ -5,6 +5,16 @@
 //!
 //! The ciphertext format is: ciphertext || auth_tag (16 bytes appended).
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::aes::{aes_encrypt_block, aes_key_expansion};
 use crate::primitives::PrimitivesError;
 
@@ -62,7 +72,7 @@ fn ghash(h: &[u8; 16], input: &[u8]) -> [u8; 16] {
 
     for i in (0..input.len()).step_by(16) {
         let mut block = result;
-        let remaining = std::cmp::min(16, input.len() - i);
+        let remaining = core::cmp::min(16, input.len() - i);
         for j in 0..16 {
             if j < remaining {
                 block[j] ^= input[i + j];
@@ -95,11 +105,11 @@ fn build_auth_input_standard(aad: &[u8], ciphertext: &[u8]) -> Vec<u8> {
 
     // AAD + padding
     out.extend_from_slice(aad);
-    out.extend(std::iter::repeat_n(0u8, aad_pad));
+    out.extend(core::iter::repeat_n(0u8, aad_pad));
 
     // Ciphertext + padding
     out.extend_from_slice(ciphertext);
-    out.extend(std::iter::repeat_n(0u8, ct_pad));
+    out.extend(core::iter::repeat_n(0u8, ct_pad));
 
     // Length block: len(AAD) in bits (64-bit BE) || len(CT) in bits (64-bit BE)
     let aad_bits = (aad.len() as u64) * 8;
@@ -132,7 +142,7 @@ fn build_auth_input_ts_compat(ciphertext: &[u8]) -> Vec<u8> {
 
     // Ciphertext + padding
     out.extend_from_slice(ciphertext);
-    out.extend(std::iter::repeat_n(0u8, pad_len));
+    out.extend(core::iter::repeat_n(0u8, pad_len));
 
     // Length block: aad_len_bits = 0, ct_len_bits = ciphertext.len() * 8
     let aad_bits: u64 = 0;
@@ -168,7 +178,7 @@ fn gctr(input: &[u8], initial_counter: &[u8; 16], round_keys: &[u32]) -> Vec<u8>
     let mut pos = 0;
     for i in 0..n {
         let encrypted_counter = aes_encrypt_block(&counter_block, round_keys);
-        let chunk = std::cmp::min(16, input.len() - pos);
+        let chunk = core::cmp::min(16, input.len() - pos);
         for (j, enc_byte) in encrypted_counter.iter().enumerate().take(chunk) {
             output.push(input[pos + j] ^ enc_byte);
         }
@@ -198,7 +208,7 @@ fn derive_j0(h: &[u8; 16], iv: &[u8]) -> [u8; 16] {
         } else {
             16 - (iv.len() % 16)
         };
-        padded.extend(std::iter::repeat_n(0u8, pad_len));
+        padded.extend(core::iter::repeat_n(0u8, pad_len));
         // Append 8 zero bytes then 8-byte big-endian length in bits
         padded.extend_from_slice(&[0u8; 8]);
         let iv_bits = (iv.len() as u64) * 8;

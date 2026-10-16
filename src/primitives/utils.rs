@@ -3,6 +3,16 @@
 //! Includes hex encoding/decoding, Base58 encoding/decoding,
 //! and Base58Check encoding/decoding with checksum verification.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use super::error::PrimitivesError;
 use super::hash::hash256;
 
@@ -91,8 +101,15 @@ pub fn base58_decode(s: &str) -> Result<Vec<u8>, PrimitivesError> {
     // Count leading '1' characters (zero bytes)
     let leading_ones = s.chars().take_while(|&c| c == '1').count();
 
-    // Estimate output size
-    let size = ((s.len() - leading_ones) as f64 * (58.0_f64.ln() / 256.0_f64.ln()) + 1.0) as usize;
+    // Estimate output size. `f64::ln` is not available on no_std targets
+    // (it is provided by libm behind std). The constant is ln(58)/ln(256)
+    // rounded up so the buffer is at least as large as the std calculation;
+    // extra leading zeros are stripped below, so decoded bytes match.
+    #[cfg(feature = "std")]
+    let log_factor = 58.0_f64.ln() / 256.0_f64.ln();
+    #[cfg(not(feature = "std"))]
+    let log_factor = 0.7323_f64;
+    let size = ((s.len() - leading_ones) as f64 * log_factor + 1.0) as usize;
     let mut result = vec![0u8; size];
 
     for ch in s.chars() {

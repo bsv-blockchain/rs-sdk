@@ -3,10 +3,20 @@
 //! The Curve struct holds the secp256k1 curve constants (p, a, b, n, G)
 //! and provides a singleton instance via `Curve::secp256k1()`.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::BigNumber;
 use crate::primitives::point::Point;
 use crate::primitives::reduction_context::ReductionContext;
-use std::sync::Arc;
 
 /// Represents the secp256k1 elliptic curve and its parameters.
 ///
@@ -42,7 +52,7 @@ pub struct Curve {
 }
 
 /// Singleton Curve instance - lazily initialized.
-static CURVE_INIT: std::sync::OnceLock<Curve> = std::sync::OnceLock::new();
+static CURVE_INIT: once_cell::race::OnceBox<Curve> = once_cell::race::OnceBox::new();
 
 impl Curve {
     /// Get the secp256k1 curve instance (singleton).
@@ -81,7 +91,7 @@ impl Curve {
             // n mod p for eqXToP checks
             let red_n_val = n.umod(&p).unwrap_or_else(|_| BigNumber::zero());
 
-            Curve {
+            alloc::boxed::Box::new(Curve {
                 p,
                 a,
                 b,
@@ -93,7 +103,7 @@ impl Curve {
                 red_n,
                 red_n_val,
                 bit_length,
-            }
+            })
         })
     }
 
@@ -103,8 +113,8 @@ impl Curve {
     }
 }
 
-impl std::fmt::Debug for Curve {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for Curve {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("Curve")
             .field("p", &self.p.to_hex())
             .field("n", &self.n.to_hex())

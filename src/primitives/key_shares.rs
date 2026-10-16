@@ -3,6 +3,16 @@
 //! Implements key splitting and reconstruction using polynomial interpolation
 //! over GF(p). Follows the TS SDK PrivateKey.ts KeyShares implementation.
 
+#[allow(unused_imports)]
+use alloc::{
+    borrow::ToOwned,
+    boxed::Box,
+    format,
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::primitives::big_number::{BigNumber, Endian};
 use crate::primitives::curve::Curve;
 use crate::primitives::error::PrimitivesError;
