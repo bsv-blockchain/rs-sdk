@@ -34,7 +34,7 @@ jobs:
       - if: matrix.features == 'network'
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.23.4
       - if: matrix.features == 'network'
         run: npm install --no-save --ignore-scripts --no-audit --no-fund @bsv/sdk@2.4.1
       - if: matrix.features == 'default'
@@ -54,7 +54,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.23.4
       - run: npm install --no-save --ignore-scripts --no-audit --no-fund @bsv/sdk@2.4.1
       - run: node tests/vectors/gen_auth_certificate_interop.mjs node_modules/@bsv/sdk
       - run: git diff --exit-code -- tests/vectors/auth_certificate_interop.json
